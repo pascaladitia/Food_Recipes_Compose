@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Food Recipes Compose</string>
+    <string name="cookie">Cookie</string>
+    <string name="category">Category</string>
+    <string name="just_for_you">Just for you</string>
+    <string name="food_recipes">Food Recipes</string>
+    <string name="no_tags">No Tags</string>
 </resources>

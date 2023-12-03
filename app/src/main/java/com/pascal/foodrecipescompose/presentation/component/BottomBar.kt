@@ -1,9 +1,9 @@
 package com.pascal.foodrecipescompose.presentation.component
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.PersonOutline
+import androidx.compose.material.icons.outlined.EmojiFoodBeverage
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -29,15 +29,19 @@ fun BottomBar(
         val currentRoute = navBackStackEntry?.destination?.route
         val navigationItems = listOf(
             NavigationItem(
-                title = "Home",
-                icon = Icons.Default.Home,
+                title = "Recipes",
+                icon = Icons.Outlined.EmojiFoodBeverage,
                 screen = Screen.HomeScreen
             ),
-
             NavigationItem(
                 title = "Favorite",
-                icon = Icons.Default.Favorite,
+                icon = Icons.Outlined.FavoriteBorder,
                 screen = Screen.FavoriteScreen
+            ),
+            NavigationItem(
+                title = "Profile",
+                icon = Icons.Default.PersonOutline,
+                screen = Screen.ProfileScreen
             ),
         )
         navigationItems.map { item ->

@@ -1,5 +1,8 @@
 package com.pascal.foodrecipescompose.presentation.screen.home
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,10 +44,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -98,6 +103,9 @@ fun HomeScreen(
                     listRecipe = data?.meals,
                     onCategoryClick = { query ->
                         onCategoryClick(query)
+                    },
+                    onDetailClick = { query ->
+                        onDetailClick(query)
                     }
                 )
             }
@@ -111,6 +119,7 @@ fun HomeContent(
     listCategory: List<CategoriesItem?>?,
     listRecipe: List<MealsItem?>?,
     onCategoryClick: (String) -> Unit,
+    onDetailClick: (String) -> Unit
 ) {
 
     Column(
@@ -123,11 +132,11 @@ fun HomeContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "Cookie", style = MaterialTheme.typography.headlineLarge)
+            Text(text = stringResource(R.string.cookie), style = MaterialTheme.typography.headlineLarge)
             Icon(imageVector = Icons.Outlined.Notifications, contentDescription = "")
         }
         Search()
-        SectionText(text = "Category")
+        SectionText(text = stringResource(R.string.category))
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -144,14 +153,19 @@ fun HomeContent(
                 }
             }
         }
-        SectionText(text = "Just for you")
+        SectionText(text = stringResource(R.string.just_for_you))
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(horizontal = 24.dp),
         ) {
             items(listRecipe ?: emptyList()) { category ->
-                category?.let { RecipesItem(item = it) }
+                category?.let { item ->
+                    RecipesItem(
+                        item = item,
+                        onDetailClick = { onDetailClick(it) }
+                    )
+                }
             }
         }
     }
@@ -167,8 +181,9 @@ fun CategoryItem(
     val model = remember {
         ImageRequest.Builder(context)
             .data(item.strCategoryThumb)
-            .size(Size.ORIGINAL)
+            .size(1024)
             .crossfade(true)
+            .placeholder(R.drawable.loading)
             .error(R.drawable.logo)
             .build()
     }
@@ -201,7 +216,7 @@ fun CategoryItem(
             )
             Text(
                 modifier = Modifier.padding(4.dp),
-                text = item.strCategory ?: "category",
+                text = item.strCategory ?: stringResource(id = R.string.category),
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -211,14 +226,19 @@ fun CategoryItem(
 }
 
 @Composable
-fun RecipesItem(modifier: Modifier = Modifier, item: MealsItem) {
+fun RecipesItem(
+    modifier: Modifier = Modifier,
+    item: MealsItem,
+    onDetailClick: (String) -> Unit
+) {
     val context = LocalContext.current
     val model = remember {
         ImageRequest.Builder(context)
             .data(item.strMealThumb)
-            .size(Size.ORIGINAL)
+            .size(1024)
             .crossfade(true)
-            .error(R.drawable.no_image)
+            .placeholder(R.drawable.loading)
+            .error(R.drawable.logo)
             .build()
     }
 
@@ -229,7 +249,7 @@ fun RecipesItem(modifier: Modifier = Modifier, item: MealsItem) {
             .border(1.dp, Color.Black, RoundedCornerShape(12.dp))
             .clip(RoundedCornerShape(12.dp))
             .width(240.dp)
-            .clickable { }
+            .clickable { onDetailClick(item.idMeal ?: "") }
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -248,7 +268,7 @@ fun RecipesItem(modifier: Modifier = Modifier, item: MealsItem) {
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = item.strMeal ?: "Food Recipes",
+                text = item.strMeal ?: stringResource(R.string.food_recipes),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold
                 ),
@@ -256,7 +276,7 @@ fun RecipesItem(modifier: Modifier = Modifier, item: MealsItem) {
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = item.strTags.toString(), style = MaterialTheme.typography.bodySmall)
+            Text(text = item.strTags ?: stringResource(R.string.no_tags), style = MaterialTheme.typography.bodySmall)
             Spacer(modifier = Modifier.height(12.dp))
             Row {
                 Box(
@@ -279,7 +299,7 @@ fun RecipesItem(modifier: Modifier = Modifier, item: MealsItem) {
                     modifier = Modifier
                         .border(1.dp, Color.Black, CircleShape)
                         .clip(CircleShape)
-                        .clickable { }
+                        .clickable { intentActionView(context, item.strYoutube.toString()) }
                         .padding(4.dp)
                 ) {
                     Icon(imageVector = Icons.Outlined.PlayArrow, contentDescription = "")
@@ -305,6 +325,11 @@ fun SectionText(modifier: Modifier = Modifier, text: String) {
     }
 }
 
+private fun intentActionView(context: Context, url: String) {
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    ContextCompat.startActivity(context, intent, null)
+}
+
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun HomePreview() {
@@ -315,10 +340,17 @@ fun HomePreview() {
             CategoriesItem(strCategory = "name3"),
             CategoriesItem(strCategory = "name4")
         )
+        val listRecipe = listOf(
+            MealsItem(strCategory = "name1"),
+            MealsItem(strCategory = "name2"),
+            MealsItem(strCategory = "name3"),
+            MealsItem(strCategory = "name4")
+        )
         HomeContent(
             listCategory = listCategory,
-            listRecipe = emptyList(),
-            onCategoryClick = {}
+            listRecipe = listRecipe,
+            onCategoryClick = {},
+            onDetailClick = {}
         )
     }
 }

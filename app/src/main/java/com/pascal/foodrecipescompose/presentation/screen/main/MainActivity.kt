@@ -32,9 +32,12 @@ import com.pascal.foodrecipescompose.R
 import com.pascal.foodrecipescompose.presentation.component.BottomBar
 import com.pascal.foodrecipescompose.presentation.navigation.Screen
 import com.pascal.foodrecipescompose.presentation.screen.category.CategoryScreen
+import com.pascal.foodrecipescompose.presentation.screen.detail.DetailScreen
 import com.pascal.foodrecipescompose.presentation.screen.favorite.FavoriteScreen
 import com.pascal.foodrecipescompose.presentation.screen.home.HomeScreen
+import com.pascal.foodrecipescompose.presentation.screen.profile.ProfileScreen
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
+import com.pascal.foodrecipescompose.utils.QUERY
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
@@ -92,7 +95,7 @@ fun MainScreen(
 
     Scaffold(
         bottomBar = {
-            if (currentRoute in listOf(Screen.HomeScreen.route, Screen.FavoriteScreen.route)) {
+            if (currentRoute in listOf(Screen.HomeScreen.route, Screen.FavoriteScreen.route, Screen.ProfileScreen.route)) {
                 BottomBar(navController)
             }
         }
@@ -112,9 +115,9 @@ fun MainScreen(
             composable(route = Screen.CategoryScreen.route) {
                 CategoryScreen(
                     paddingValues = paddingValues,
-                    query = it.arguments?.getString("query") ?: "",
-                    onDetailClick = {
-
+                    query = it.arguments?.getString(QUERY) ?: "",
+                    onDetailClick = { query ->
+                        navController.navigate(Screen.DetailScreen.createRoute(query))
                     }
                 )
             }
@@ -123,20 +126,26 @@ fun MainScreen(
 
                 )
             }
+            composable(route = Screen.ProfileScreen.route) {
+                ProfileScreen(
+
+                )
+            }
             composable(
                 route = Screen.DetailScreen.route,
                 arguments = listOf(
-                    navArgument("id") {
-                        type = NavType.IntType
+                    navArgument(QUERY) {
+                        type = NavType.StringType
                         nullable = false
                     },
                 )
             ) {
-//                DetailScreen(
-//                    movieId = it.arguments!!.getInt("id"),
-//                    onNavBack = {
-//                        navController.popBackStack()
-//                    })
+                DetailScreen(
+                    paddingValues = paddingValues,
+                    query = it.arguments?.getString(QUERY) ?: "",
+                    onNavBack = {
+                        navController.popBackStack()
+                    })
             }
         }
     }

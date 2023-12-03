@@ -19,7 +19,7 @@ data class MealsItem(
 	val strArea: String? = null,
 	val strCreativeCommonsConfirmed: Any? = null,
 	val strIngredient19: String? = null,
-	val strTags: Any? = null,
+	val strTags: String? = null,
 	val idMeal: String? = null,
 	val strInstructions: String? = null,
 	val strIngredient1: String? = null,

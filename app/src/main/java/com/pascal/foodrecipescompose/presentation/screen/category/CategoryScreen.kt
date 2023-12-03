@@ -75,7 +75,12 @@ fun CategoryScreen(
             }
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data
-                CategoryContent(listCategory = data?.meals)
+                CategoryContent(
+                    listCategory = data?.meals,
+                    onDetailClick = {
+                        onDetailClick(it)
+                    }
+                )
             }
         }
     }
@@ -84,9 +89,11 @@ fun CategoryScreen(
 @Composable
 fun CategoryContent(
     modifier: Modifier = Modifier,
-    listCategory: List<FilterCategoryItem?>?
+    listCategory: List<FilterCategoryItem?>?,
+    onDetailClick: (String) -> Unit
 ) {
     LazyVerticalGrid(
+        modifier = modifier,
         columns = GridCells.Adaptive(130.dp),
         state = rememberLazyGridState(),
         verticalArrangement = Arrangement.spacedBy(24.dp),
@@ -94,21 +101,31 @@ fun CategoryContent(
         contentPadding = PaddingValues(24.dp)
     ) {
         items(listCategory!!.size) { index ->
-            listCategory[index]?.let {
-                CategoryItemFilter(item = it)
+            listCategory[index]?.let { item ->
+                CategoryItemFilter(
+                    item = item,
+                    onDetailClick = {
+                        onDetailClick(it)
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-fun CategoryItemFilter(modifier: Modifier = Modifier, item: FilterCategoryItem) {
+fun CategoryItemFilter(
+    modifier: Modifier = Modifier,
+    item: FilterCategoryItem,
+    onDetailClick: (String) -> Unit
+) {
     val context = LocalContext.current
     val model = remember {
         ImageRequest.Builder(context)
             .data(item.strMealThumb)
-            .size(Size.ORIGINAL)
+            .size(1024)
             .crossfade(true)
+            .placeholder(R.drawable.loading)
             .error(R.drawable.logo)
             .build()
     }
@@ -119,7 +136,7 @@ fun CategoryItemFilter(modifier: Modifier = Modifier, item: FilterCategoryItem) 
             .background(Color.White, RoundedCornerShape(16.dp))
             .border(1.dp, Color.Black, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .clickable { }
+            .clickable { onDetailClick(item.idMeal ?: "") }
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
@@ -138,7 +155,7 @@ fun CategoryItemFilter(modifier: Modifier = Modifier, item: FilterCategoryItem) 
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = item.strMeal ?: ".....",
+                text = item.strMeal ?: "-",
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -158,6 +175,9 @@ fun CategoryPreview() {
             FilterCategoryItem(strMeal = "name3"),
             FilterCategoryItem(strMeal = "name4")
         )
-        CategoryContent(listCategory = listCategory)
+        CategoryContent(
+            listCategory = listCategory,
+            onDetailClick = {}
+        )
     }
 }
