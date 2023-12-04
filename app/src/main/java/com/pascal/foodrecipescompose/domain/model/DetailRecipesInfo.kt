@@ -5,7 +5,7 @@ class DetailRecipesInfo(
     val strCategory: String? = null,
     val strArea: String? = null,
     val strCreativeCommonsConfirmed: Any? = null,
-    val strTags: Any? = null,
+    val strTags: String? = null,
     val idMeal: String? = null,
     val strInstructions: String? = null,
     val strMealThumb: String? = null,
@@ -17,3 +17,4 @@ class DetailRecipesInfo(
     val strIngredient: MutableList<String?>? = null,
     val strMeasure: MutableList<String?>? = null
     )
+

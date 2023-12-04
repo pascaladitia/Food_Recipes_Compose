@@ -59,6 +59,8 @@ import com.pascal.foodrecipescompose.data.remote.dtos.CategoriesItem
 import com.pascal.foodrecipescompose.data.remote.dtos.CategoryResponse
 import com.pascal.foodrecipescompose.data.remote.dtos.MealsItem
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
+import com.pascal.foodrecipescompose.presentation.component.IconCircleBorder
+import com.pascal.foodrecipescompose.presentation.component.ImageModel
 import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.component.Search
 import com.pascal.foodrecipescompose.presentation.screen.main.MainViewModel
@@ -74,12 +76,12 @@ fun HomeScreen(
     onCategoryClick: (String) -> Unit,
     onDetailClick: (String) -> Unit
 ) {
-    LaunchedEffect(key1 = true) {
-        viewModel.loadListRecipes(generateRandomChar().toString())
-    }
-
     val category by produceState<CategoryResponse?>(initialValue = null) {
         value = viewModel.loadCategory()
+    }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.loadListRecipes(generateRandomChar().toString())
     }
 
     val uiState by viewModel.recipes.collectAsState()
@@ -121,7 +123,6 @@ fun HomeContent(
     onCategoryClick: (String) -> Unit,
     onDetailClick: (String) -> Unit
 ) {
-
     Column(
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
@@ -133,7 +134,9 @@ fun HomeContent(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = stringResource(R.string.cookie), style = MaterialTheme.typography.headlineLarge)
-            Icon(imageVector = Icons.Outlined.Notifications, contentDescription = "")
+            IconCircleBorder(imageVector = Icons.Outlined.Notifications) {
+
+            }
         }
         Search()
         SectionText(text = stringResource(R.string.category))
@@ -178,16 +181,6 @@ fun CategoryItem(
     onCategoryClick: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val model = remember {
-        ImageRequest.Builder(context)
-            .data(item.strCategoryThumb)
-            .size(1024)
-            .crossfade(true)
-            .placeholder(R.drawable.loading)
-            .error(R.drawable.logo)
-            .build()
-    }
-
     Box(
         modifier = modifier
             .padding(top = 16.dp, bottom = 24.dp)
@@ -204,7 +197,7 @@ fun CategoryItem(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AsyncImage(
-                model = model,
+                model = ImageModel(context = context, url = item.strCategoryThumb),
                 contentDescription = item.strCategory,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
@@ -232,16 +225,6 @@ fun RecipesItem(
     onDetailClick: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val model = remember {
-        ImageRequest.Builder(context)
-            .data(item.strMealThumb)
-            .size(1024)
-            .crossfade(true)
-            .placeholder(R.drawable.loading)
-            .error(R.drawable.logo)
-            .build()
-    }
-
     Box(
         modifier = modifier
             .padding(top = 16.dp, bottom = 24.dp)
@@ -256,7 +239,7 @@ fun RecipesItem(
             horizontalAlignment = Alignment.Start
         ) {
             AsyncImage(
-                model = model,
+                model = ImageModel(context = context, url = item.strMealThumb),
                 contentDescription = item.strCategory,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -295,14 +278,8 @@ fun RecipesItem(
                     }
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier
-                        .border(1.dp, Color.Black, CircleShape)
-                        .clip(CircleShape)
-                        .clickable { intentActionView(context, item.strYoutube.toString()) }
-                        .padding(4.dp)
-                ) {
-                    Icon(imageVector = Icons.Outlined.PlayArrow, contentDescription = "")
+                IconCircleBorder(imageVector = Icons.Outlined.PlayArrow) {
+                    intentActionView(context, item.strYoutube.toString())
                 }
             }
         }

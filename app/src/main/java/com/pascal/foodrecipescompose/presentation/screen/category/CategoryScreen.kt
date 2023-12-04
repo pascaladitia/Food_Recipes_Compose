@@ -41,6 +41,7 @@ import coil.size.Size
 import com.pascal.foodrecipescompose.R
 import com.pascal.foodrecipescompose.data.remote.dtos.FilterCategoryItem
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
+import com.pascal.foodrecipescompose.presentation.component.ImageModel
 import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.screen.main.MainViewModel
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
@@ -120,16 +121,6 @@ fun CategoryItemFilter(
     onDetailClick: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val model = remember {
-        ImageRequest.Builder(context)
-            .data(item.strMealThumb)
-            .size(1024)
-            .crossfade(true)
-            .placeholder(R.drawable.loading)
-            .error(R.drawable.logo)
-            .build()
-    }
-
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -143,7 +134,7 @@ fun CategoryItemFilter(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             AsyncImage(
-                model = model,
+                model = ImageModel(context = context, url = item.strMealThumb),
                 contentDescription = item.strMeal,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
