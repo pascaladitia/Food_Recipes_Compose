@@ -6,7 +6,7 @@ import com.pascal.foodrecipescompose.data.local.model.FavoritesEntity
 import com.pascal.foodrecipescompose.data.remote.dtos.CategoryResponse
 import com.pascal.foodrecipescompose.data.remote.dtos.FilterCategoryResponse
 import com.pascal.foodrecipescompose.data.remote.dtos.ListRecipesResponse
-import com.pascal.foodrecipescompose.domain.model.DetailRecipesInfo
+import com.pascal.foodrecipescompose.domain.model.DetailRecipesMapping
 import com.pascal.foodrecipescompose.domain.usecase.GetCategoryUC
 import com.pascal.foodrecipescompose.domain.usecase.GetDetailRecipesUC
 import com.pascal.foodrecipescompose.domain.usecase.GetFilterCategoryUC
@@ -36,8 +36,8 @@ class MainViewModel @Inject constructor(
     private val _recipes = MutableStateFlow<UiState<ListRecipesResponse?>>(UiState.Loading)
     val recipes: StateFlow<UiState<ListRecipesResponse?>> = _recipes
 
-    private val _detailRecipes = MutableStateFlow<UiState<DetailRecipesInfo?>>(UiState.Loading)
-    val detailRecipes: StateFlow<UiState<DetailRecipesInfo?>> = _detailRecipes
+    private val _detailRecipes = MutableStateFlow<UiState<DetailRecipesMapping?>>(UiState.Loading)
+    val detailRecipes: StateFlow<UiState<DetailRecipesMapping?>> = _detailRecipes
 
     suspend fun loadCategory(): CategoryResponse {
         return getCategoryUC.execute()

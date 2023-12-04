@@ -67,6 +67,7 @@ import com.pascal.foodrecipescompose.presentation.screen.main.MainViewModel
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 import com.pascal.foodrecipescompose.utils.UiState
 import com.pascal.foodrecipescompose.utils.generateRandomChar
+import com.pascal.foodrecipescompose.utils.intentActionView
 
 @Composable
 fun HomeScreen(
@@ -259,7 +260,12 @@ fun RecipesItem(
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = item.strTags ?: stringResource(R.string.no_tags), style = MaterialTheme.typography.bodySmall)
+            Text(
+                text = item.strTags ?: stringResource(R.string.no_tags),
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
             Spacer(modifier = Modifier.height(12.dp))
             Row {
                 Box(
@@ -300,11 +306,6 @@ fun SectionText(modifier: Modifier = Modifier, text: String) {
         )
         Icon(imageVector = Icons.Outlined.NavigateNext, contentDescription = "")
     }
-}
-
-private fun intentActionView(context: Context, url: String) {
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-    ContextCompat.startActivity(context, intent, null)
 }
 
 @Preview(showSystemUi = true, showBackground = true)

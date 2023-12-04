@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,12 +38,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.pascal.foodrecipescompose.R
-import com.pascal.foodrecipescompose.domain.model.DetailRecipesInfo
+import com.pascal.foodrecipescompose.domain.model.DetailRecipesMapping
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
 import com.pascal.foodrecipescompose.presentation.component.IconCircleBorder
 import com.pascal.foodrecipescompose.presentation.component.ImageModel
@@ -52,6 +49,7 @@ import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.screen.main.MainViewModel
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 import com.pascal.foodrecipescompose.utils.UiState
+import com.pascal.foodrecipescompose.utils.intentActionView
 
 @Composable
 fun DetailScreen(
@@ -82,7 +80,7 @@ fun DetailScreen(
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data
                 DetailContent(
-                    detailRecipesInfo = data,
+                    detailRecipesMapping = data,
                     onNavBack = {
                         onNavBack()
                     }
@@ -95,7 +93,7 @@ fun DetailScreen(
 @Composable
 fun DetailContent(
     modifier: Modifier = Modifier,
-    detailRecipesInfo: DetailRecipesInfo?,
+    detailRecipesMapping: DetailRecipesMapping?,
     onNavBack: () -> Unit
 ) {
     Column(
@@ -123,18 +121,16 @@ fun DetailContent(
 
             }
         }
-        ImageRecipes(item = detailRecipesInfo)
-        TitleDetail(item = detailRecipesInfo) {
-
-        }
-        ContentDetail(item = detailRecipesInfo)
+        ImageRecipes(item = detailRecipesMapping)
+        TitleDetail(item = detailRecipesMapping)
+        ContentDetail(item = detailRecipesMapping)
     }
 }
 
 @Composable
 fun ImageRecipes(
     modifier: Modifier = Modifier,
-    item: DetailRecipesInfo?
+    item: DetailRecipesMapping?
 ) {
     val context = LocalContext.current
     AsyncImage(
@@ -153,9 +149,9 @@ fun ImageRecipes(
 @Composable
 fun TitleDetail(
     modifier: Modifier = Modifier,
-    item: DetailRecipesInfo?,
-    onClick: () -> Unit
+    item: DetailRecipesMapping?
 ) {
+    val context = LocalContext.current
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -183,7 +179,7 @@ fun TitleDetail(
                 ) {
                     Icon(imageVector = Icons.Outlined.EmojiFoodBeverage, contentDescription = "")
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = item?.strTags ?: "-", style = MaterialTheme.typography.bodySmall)
+                    Text(text = item?.strTags ?: "no tags", style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -192,7 +188,7 @@ fun TitleDetail(
             padding = 6.dp,
             imageVector = Icons.Outlined.PlayArrow
         ) {
-            onClick()
+            intentActionView(context, item?.strYoutube.toString())
         }
     }
 }
@@ -200,7 +196,7 @@ fun TitleDetail(
 @Composable
 fun ContentDetail(
     modifier: Modifier = Modifier,
-    item: DetailRecipesInfo?,
+    item: DetailRecipesMapping?,
 ) {
     Row(modifier = modifier
         .fillMaxWidth()
@@ -255,13 +251,13 @@ fun TextContent(text: String) {
 @Composable
 fun DetailPreview() {
     FoodRecipesComposeTheme {
-        val detail = DetailRecipesInfo(
+        val detail = DetailRecipesMapping(
             strMeal = "Fried Rice",
             strTags = "recipes",
             strCategory = "category"
         )
         DetailContent(
-            detailRecipesInfo = detail,
+            detailRecipesMapping = detail,
             onNavBack = {
 
             }
