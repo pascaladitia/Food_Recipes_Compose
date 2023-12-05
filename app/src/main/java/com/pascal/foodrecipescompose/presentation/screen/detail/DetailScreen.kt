@@ -124,6 +124,7 @@ fun DetailContent(
         ImageRecipes(item = detailRecipesMapping)
         TitleDetail(item = detailRecipesMapping)
         ContentDetail(item = detailRecipesMapping)
+        ContentDetailWithTabs(item = detailRecipesMapping)
     }
 }
 
@@ -179,7 +180,7 @@ fun TitleDetail(
                 ) {
                     Icon(imageVector = Icons.Outlined.EmojiFoodBeverage, contentDescription = "")
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = item?.strTags ?: "no tags", style = MaterialTheme.typography.bodySmall)
+                    Text(text = item?.strTags ?: stringResource(id = R.string.no_tags), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -207,7 +208,7 @@ fun ContentDetail(
                 .weight(1f),
             horizontalAlignment = Alignment.Start
         ) {
-            TextTitle(text = "Id Recipe")
+            TextTitle(text = stringResource(R.string.id_recipe))
             TextContent(text = item?.idMeal ?: "-")
         }
         Column(
@@ -215,7 +216,7 @@ fun ContentDetail(
                 .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TextTitle(text = "Area")
+            TextTitle(text = stringResource(R.string.area))
             TextContent(text = item?.strArea ?: "-")
         }
         Column(
@@ -223,7 +224,7 @@ fun ContentDetail(
                 .weight(1f),
             horizontalAlignment = Alignment.End
         ) {
-            TextTitle(text = "Category")
+            TextTitle(text = stringResource(R.string.category))
             TextContent(text = item?.strCategory ?: "-")
         }
     }

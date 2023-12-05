@@ -14,7 +14,7 @@ data class DetailRecipesMapping(
     val dateModified: String? = null,
     val strDrinkAlternate: String? = null,
     val strSource: String? = null,
-    val strIngredient: MutableList<IngredientMapping?>? = null
+    val listIngredient: MutableList<IngredientMapping>? = null
 )
 
 data class IngredientMapping(

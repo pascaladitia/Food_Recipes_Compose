@@ -5,4 +5,8 @@
     <string name="just_for_you">Just for you</string>
     <string name="food_recipes">Food Recipes</string>
     <string name="no_tags">No Tags</string>
+    <string name="id_recipe">Id Recipe</string>
+    <string name="area">Area</string>
+    <string name="ingredients">Ingredients</string>
+    <string name="step_cooking">Step Cooking</string>
 </resources>
