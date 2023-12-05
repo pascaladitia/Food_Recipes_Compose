@@ -1,8 +1,5 @@
 package com.pascal.foodrecipescompose.presentation.screen.home
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -37,7 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,11 +45,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import coil.size.Size
 import com.pascal.foodrecipescompose.R
 import com.pascal.foodrecipescompose.data.remote.dtos.CategoriesItem
 import com.pascal.foodrecipescompose.data.remote.dtos.CategoryResponse
@@ -68,6 +61,7 @@ import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeThe
 import com.pascal.foodrecipescompose.utils.UiState
 import com.pascal.foodrecipescompose.utils.generateRandomChar
 import com.pascal.foodrecipescompose.utils.intentActionView
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -104,6 +98,7 @@ fun HomeScreen(
                 HomeContent(
                     listCategory = category?.categories,
                     listRecipe = data?.meals,
+                    viewModel = viewModel,
                     onCategoryClick = { query ->
                         onCategoryClick(query)
                     },
@@ -121,9 +116,12 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     listCategory: List<CategoriesItem?>?,
     listRecipe: List<MealsItem?>?,
+    viewModel: MainViewModel,
     onCategoryClick: (String) -> Unit,
     onDetailClick: (String) -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
@@ -139,7 +137,11 @@ fun HomeContent(
 
             }
         }
-        Search()
+        Search { query ->
+            coroutineScope.launch {
+                viewModel.loadSearchRecipes(query)
+            }
+        }
         SectionText(text = stringResource(R.string.category))
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
@@ -327,6 +329,7 @@ fun HomePreview() {
         HomeContent(
             listCategory = listCategory,
             listRecipe = listRecipe,
+            viewModel = hiltViewModel(),
             onCategoryClick = {},
             onDetailClick = {}
         )

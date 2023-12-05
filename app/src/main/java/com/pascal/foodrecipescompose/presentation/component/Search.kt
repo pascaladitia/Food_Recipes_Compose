@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -27,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,7 +38,10 @@ import androidx.compose.ui.unit.dp
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 
 @Composable
-fun Search(modifier: Modifier = Modifier) {
+fun Search(
+    modifier: Modifier = Modifier,
+    onSearch: (String) -> Unit
+) {
 
     var searchText by remember { mutableStateOf("") }
 
@@ -49,25 +56,37 @@ fun Search(modifier: Modifier = Modifier) {
         onValueChange = {
             searchText = it
         },
-        textStyle = MaterialTheme.typography.bodySmall,
+        textStyle = MaterialTheme.typography.bodyLarge,
         placeholder = {
-                Row {
-                    Icon(Icons.Default.Search, contentDescription = null)
-                    Text(
-                        "Search food",
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
-            },
+            Row {
+                Icon(Icons.Default.Search, contentDescription = null)
+                Text(
+                    text = "Search food",
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+        },
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Search,
+            keyboardType = KeyboardType.Text
+        ),
+        keyboardActions = KeyboardActions(
+            onSearch = {
+                onSearch(searchText)
+            }
+        )
     )
 }
+
 
 @Preview(showBackground = true)
 @Composable
 fun Preview() {
     FoodRecipesComposeTheme {
-        Search()
+        Search() {
+
+        }
     }
 }
