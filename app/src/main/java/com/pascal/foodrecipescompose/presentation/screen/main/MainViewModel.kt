@@ -45,11 +45,14 @@ class MainViewModel @Inject constructor(
     }
 
     suspend fun loadFilterCategory(query: String) {
-        try {
+        viewModelScope.launch {
             val result = getFilterCategoryUC.execute(GetFilterCategoryUC.Params(query))
-            _filterCategory.value = UiState.Success(result)
-        } catch (e: Exception) {
-            _filterCategory.value = UiState.Error(e.toString())
+            result.collect {
+                _filterCategory.value = UiState.Success(it)
+            }
+            result.catch {
+                _filterCategory.value = UiState.Error(it.message.toString())
+            }
         }
     }
 

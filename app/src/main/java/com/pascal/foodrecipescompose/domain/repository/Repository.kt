@@ -17,8 +17,8 @@ internal class Repository @Inject constructor(private val appService: AppService
         return appService.getCategory().body()!!
     }
 
-    override suspend fun getFilterCategory(query: String): FilterCategoryResponse {
-        return appService.getFilterCategory(query).body()!!
+    override suspend fun getFilterCategory(query: String): Flow<FilterCategoryResponse> {
+        return flowOf(appService.getFilterCategory(query).body()!!)
 
     }
 

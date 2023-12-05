@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface IRepository {
     suspend fun getCategory(): CategoryResponse
-    suspend fun getFilterCategory(query: String): FilterCategoryResponse
+    suspend fun getFilterCategory(query: String): Flow<FilterCategoryResponse>
     suspend fun getListRecipe(query: String): Flow<ListRecipesResponse>
     suspend fun getSearchRecipe(query: String): Flow<ListRecipesResponse>
     suspend fun getDetailRecipe(query: String): ListRecipesResponse
