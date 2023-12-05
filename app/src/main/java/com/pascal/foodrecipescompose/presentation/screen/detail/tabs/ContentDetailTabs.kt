@@ -1,27 +1,13 @@
-package com.pascal.foodrecipescompose.presentation.screen.detail
+package com.pascal.foodrecipescompose.presentation.screen.detail.tabs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.EmojiFoodBeverage
-import androidx.compose.material.icons.outlined.FormatListNumbered
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -31,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -115,56 +100,6 @@ fun ContentDetailWithTabs(
             0 -> IngredientsTab(item = item)
             1 -> StepCookingTab(item = item)
         }
-    }
-}
-
-@Composable
-fun IngredientsTab(modifier: Modifier = Modifier, item: DetailRecipesMapping?) {
-    item?.listIngredient?.forEach { data ->
-        Box(
-            modifier = modifier
-                .padding(bottom = 16.dp)
-                .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(16.dp))
-                .border(1.dp, Color.Black, RoundedCornerShape(16.dp))
-                .clip(RoundedCornerShape(16.dp))
-        ) {
-            Column(
-                modifier = Modifier.padding(14.dp)
-            ) {
-                Text(
-                    text = data.strIngredient ?: "-",
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Box(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp))
-                        .border(1.dp, Color.Black, RoundedCornerShape(16.dp))
-                        .clip(RoundedCornerShape(16.dp))
-                        .padding(vertical = 4.dp, horizontal = 12.dp),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(imageVector = Icons.Outlined.FormatListNumbered, contentDescription = "")
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = data.strMeasure ?: "-", style = MaterialTheme.typography.bodySmall)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun StepCookingTab(item: DetailRecipesMapping?) {
-    val recipeString = item?.strInstructions?.trimIndent()
-
-    val recipeList = recipeString?.split("\r\n")
-
-    for (step in recipeList ?: emptyList()) {
-        Text(step)
     }
 }
 

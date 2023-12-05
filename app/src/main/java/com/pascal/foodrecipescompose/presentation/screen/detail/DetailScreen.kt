@@ -46,6 +46,7 @@ import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
 import com.pascal.foodrecipescompose.presentation.component.IconCircleBorder
 import com.pascal.foodrecipescompose.presentation.component.ImageModel
 import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
+import com.pascal.foodrecipescompose.presentation.screen.detail.tabs.ContentDetailWithTabs
 import com.pascal.foodrecipescompose.presentation.screen.main.MainViewModel
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 import com.pascal.foodrecipescompose.utils.UiState
