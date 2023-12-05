@@ -4,12 +4,13 @@ import com.pascal.foodrecipescompose.data.local.model.FavoritesEntity
 import com.pascal.foodrecipescompose.data.remote.dtos.CategoryResponse
 import com.pascal.foodrecipescompose.data.remote.dtos.FilterCategoryResponse
 import com.pascal.foodrecipescompose.data.remote.dtos.ListRecipesResponse
+import kotlinx.coroutines.flow.Flow
 
 interface IRepository {
     suspend fun getCategory(): CategoryResponse
     suspend fun getFilterCategory(query: String): FilterCategoryResponse
-    suspend fun getListRecipe(query: String): ListRecipesResponse
-    suspend fun getSearchRecipe(query: String): ListRecipesResponse
+    suspend fun getListRecipe(query: String): Flow<ListRecipesResponse>
+    suspend fun getSearchRecipe(query: String): Flow<ListRecipesResponse>
     suspend fun getDetailRecipe(query: String): ListRecipesResponse
 
     suspend fun updateFavorite(item: FavoritesEntity, checkFav: Boolean)

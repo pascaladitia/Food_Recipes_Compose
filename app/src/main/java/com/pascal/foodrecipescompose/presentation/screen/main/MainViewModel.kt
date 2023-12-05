@@ -17,6 +17,7 @@ import com.pascal.foodrecipescompose.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -48,25 +49,32 @@ class MainViewModel @Inject constructor(
             val result = getFilterCategoryUC.execute(GetFilterCategoryUC.Params(query))
             _filterCategory.value = UiState.Success(result)
         } catch (e: Exception) {
-            _filterCategory.value = UiState.Error(e)
+            _filterCategory.value = UiState.Error(e.toString())
         }
     }
 
     suspend fun loadListRecipes(query: String) {
-        try {
+        viewModelScope.launch {
             val result = getListRecipesUC.execute(GetListRecipesUC.Params(query))
-            _recipes.value = UiState.Success(result)
-        } catch (e: Exception) {
-            _recipes.value = UiState.Error(e)
+            result.collect {
+                _recipes.value = UiState.Success(it)
+            }
+            result.catch {
+                _recipes.value = UiState.Error(it.message.toString())
+            }
         }
     }
 
     suspend fun loadSearchRecipes(query: String) {
-        try {
+        viewModelScope.launch {
+            _recipes.value = UiState.Loading
             val result = getSearchRecipesUC.execute(GetSearchRecipesUC.Params(query))
-            _recipes.value = UiState.Success(result)
-        } catch (e: Exception) {
-            _recipes.value = UiState.Error(e)
+            result.collect {
+                _recipes.value = UiState.Success(it)
+            }
+            result.catch {
+                _recipes.value = UiState.Error(it.message.toString())
+            }
         }
     }
 
@@ -75,7 +83,7 @@ class MainViewModel @Inject constructor(
             val result = getDetailRecipesUC.execute(GetDetailRecipesUC.Params(query))
             _detailRecipes.value = UiState.Success(result)
         } catch (e: Exception) {
-            _detailRecipes.value = UiState.Error(e)
+            _detailRecipes.value = UiState.Error(e.toString())
         }
     }
 

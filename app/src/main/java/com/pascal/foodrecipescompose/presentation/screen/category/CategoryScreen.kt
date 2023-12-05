@@ -71,8 +71,8 @@ fun CategoryScreen(
                 LoadingScreen()
             }
             is UiState.Error -> {
-                val message = (uiState as UiState.Error).exception.message
-                ErrorScreen(message = message.toString())
+                val message = (uiState as UiState.Error).message
+                ErrorScreen(message = message)
             }
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data

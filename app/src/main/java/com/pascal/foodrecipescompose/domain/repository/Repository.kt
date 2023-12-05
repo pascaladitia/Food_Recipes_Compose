@@ -6,6 +6,8 @@ import com.pascal.foodrecipescompose.data.remote.AppService
 import com.pascal.foodrecipescompose.data.remote.dtos.CategoryResponse
 import com.pascal.foodrecipescompose.data.remote.dtos.FilterCategoryResponse
 import com.pascal.foodrecipescompose.data.remote.dtos.ListRecipesResponse
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,12 +22,12 @@ internal class Repository @Inject constructor(private val appService: AppService
 
     }
 
-    override suspend fun getListRecipe(query: String): ListRecipesResponse {
-        return appService.getListRecipe(query).body()!!
+    override suspend fun getListRecipe(query: String): Flow<ListRecipesResponse> {
+        return flowOf(appService.getListRecipe(query).body()!!)
     }
 
-    override suspend fun getSearchRecipe(query: String): ListRecipesResponse {
-        return appService.getSearchRecipe(query).body()!!
+    override suspend fun getSearchRecipe(query: String): Flow<ListRecipesResponse> {
+        return flowOf(appService.getSearchRecipe(query).body()!!)
     }
 
     override suspend fun getDetailRecipe(query: String): ListRecipesResponse {
