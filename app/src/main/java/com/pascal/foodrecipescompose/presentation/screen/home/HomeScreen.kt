@@ -71,10 +71,10 @@ fun HomeScreen(
     onCategoryClick: (String) -> Unit,
     onDetailClick: (String) -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
     val category by produceState<CategoryResponse?>(initialValue = null) {
         value = viewModel.loadCategory()
     }
-
     LaunchedEffect(key1 = true) {
         viewModel.loadListRecipes(generateRandomChar().toString())
     }
@@ -98,12 +98,16 @@ fun HomeScreen(
                 HomeContent(
                     listCategory = category?.categories,
                     listRecipe = data?.meals,
-                    viewModel = viewModel,
                     onCategoryClick = { query ->
                         onCategoryClick(query)
                     },
                     onDetailClick = { query ->
                         onDetailClick(query)
+                    },
+                    onSearch = { query ->
+                        coroutineScope.launch {
+                            viewModel.loadSearchRecipes(query)
+                        }
                     }
                 )
             }
@@ -116,12 +120,10 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     listCategory: List<CategoriesItem?>?,
     listRecipe: List<MealsItem?>?,
-    viewModel: MainViewModel,
     onCategoryClick: (String) -> Unit,
-    onDetailClick: (String) -> Unit
+    onDetailClick: (String) -> Unit,
+    onSearch: (String) -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
     Column(
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
@@ -138,9 +140,7 @@ fun HomeContent(
             }
         }
         Search { query ->
-            coroutineScope.launch {
-                viewModel.loadSearchRecipes(query)
-            }
+            onSearch(query)
         }
         SectionText(text = stringResource(R.string.category))
         LazyRow(
@@ -329,9 +329,9 @@ fun HomePreview() {
         HomeContent(
             listCategory = listCategory,
             listRecipe = listRecipe,
-            viewModel = hiltViewModel(),
             onCategoryClick = {},
-            onDetailClick = {}
+            onDetailClick = {},
+            onSearch = {}
         )
     }
 }
