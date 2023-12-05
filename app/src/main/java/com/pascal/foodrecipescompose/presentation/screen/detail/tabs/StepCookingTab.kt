@@ -1,19 +1,76 @@
 package com.pascal.foodrecipescompose.presentation.screen.detail.tabs
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.pascal.foodrecipescompose.domain.model.DetailRecipesMapping
 import com.pascal.foodrecipescompose.domain.model.IngredientMapping
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 
 @Composable
-fun StepCookingTab(item: DetailRecipesMapping?) {
-    val recipeString = item?.strInstructions?.trimIndent()
-
+fun StepCookingTab(modifier: Modifier = Modifier, item: DetailRecipesMapping?) {
+    val recipeString = item?.strInstructions
     val recipeList = recipeString?.split("\r\n")
-    for (step in recipeList ?: emptyList()) {
-        Text(step)
+
+    recipeList?.forEachIndexed { index, item ->
+        if(item.isNotEmpty()  && item.isNotBlank() && item != "") {
+            Column(
+                modifier = modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (index != 0) {
+                    Divider(color = Color.Black, modifier = Modifier
+                        .height(14.dp)
+                        .width(1.dp))
+                }
+                Box(
+                    modifier = Modifier
+                        .background(Color.Black, RoundedCornerShape(16.dp))
+                        .clip(CircleShape)
+                        .size(24.dp)
+                        .padding(2.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "${index.plus(1)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White
+                    )
+                }
+                Divider(color = Color.Black, modifier = Modifier
+                    .height(14.dp)
+                    .width(1.dp))
+                Box(
+                    modifier = Modifier
+                        .background(Color.White, RoundedCornerShape(16.dp))
+                        .border(1.dp, Color.Black, RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(16.dp))
+                        .padding(12.dp),
+                ) {
+                    Text(text = item ?: "-", style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
     }
 }
 
@@ -32,11 +89,7 @@ fun StepCookingTabPreview() {
             strCategory = "category",
             listIngredient = list,
             strInstructions = """
-                Preheat oven to 350° F. Spray a 9x13-inch baking pan with non-stick spray.\r\n
-                Combine soy sauce, ½ cup water, brown sugar, ginger and garlic in a small saucepan and cover. Bring to a boil over medium heat. Remove lid and cook for one minute once boiling.\r\n
-                Meanwhile, stir together the corn starch and 2 tablespoons of water in a separate dish until smooth. Once sauce is boiling, add mixture to the saucepan and stir to combine. Cook until the sauce starts to thicken then remove from heat.\r\n
-                Place the chicken breasts in the prepared pan. Pour one cup of the sauce over top of chicken. Place chicken in oven and bake 35 minutes or until cooked through. Remove from oven and shred chicken in the dish using two forks.\r\n
-                *Meanwhile, steam or cook the vegetables according to package directions.\r\nAdd the cooked vegetables and rice to the casserole dish with the chicken. Add most of the remaining sauce, reserving a bit to drizzle over the top when serving. Gently toss everything together in the casserole dish until combined. Return to oven and cook 15 minutes. Remove from oven and let stand 5 minutes before serving. Drizzle each serving with remaining sauce. Enjoy!
+                test. \r\ntest2, test3\r\ntest4
             """.trimIndent()
         )
         StepCookingTab(item = item)

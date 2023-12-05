@@ -38,7 +38,7 @@ fun ContentDetailWithTabs(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 32.dp, start = 24.dp, end = 24.dp)
+            .padding(vertical = 32.dp, horizontal = 24.dp)
     ) {
         Row(
             modifier = Modifier
