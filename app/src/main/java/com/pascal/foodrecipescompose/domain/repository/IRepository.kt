@@ -13,6 +13,7 @@ interface IRepository {
     suspend fun getSearchRecipe(query: String): Flow<ListRecipesResponse>
     suspend fun getDetailRecipe(query: String): ListRecipesResponse
 
+    suspend fun getListFavorite(): Flow<List<FavoritesEntity>>
     suspend fun updateFavorite(item: FavoritesEntity, checkFav: Boolean)
     suspend fun getFavoriteStatus(Id: Int): Boolean
 }

@@ -34,6 +34,10 @@ internal class Repository @Inject constructor(private val appService: AppService
         return appService.getDetailRecipe(query).body()!!
     }
 
+    override suspend fun getListFavorite(): Flow<List<FavoritesEntity>> {
+        return flowOf(localDataSource.getFavorites()!!)
+    }
+
     override suspend fun updateFavorite(item: FavoritesEntity, checkFav: Boolean) {
         if (checkFav) {
             localDataSource.storeFavoriteItem(item)

@@ -126,7 +126,10 @@ fun MainScreen(
             }
             composable(route = Screen.FavoriteScreen.route) {
                 FavoriteScreen(
-
+                    paddingValues = paddingValues,
+                    onDetailClick = { query ->
+                        navController.navigate(Screen.DetailScreen.createRoute(query))
+                    }
                 )
             }
             composable(route = Screen.ProfileScreen.route) {

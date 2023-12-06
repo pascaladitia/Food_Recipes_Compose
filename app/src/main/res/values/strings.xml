@@ -10,4 +10,5 @@
     <string name="ingredients">Ingredients</string>
     <string name="step_cooking">Step Cooking</string>
     <string name="empty">Recipe empty, please try again!</string>
+    <string name="favorite_empty">Favorites are empty</string>
 </resources>

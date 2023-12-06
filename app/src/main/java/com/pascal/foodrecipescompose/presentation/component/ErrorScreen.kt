@@ -32,7 +32,9 @@ fun ErrorScreen(
             .clickable { onRetry() },
         contentAlignment = Alignment.Center
     ) {
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Image(
                 modifier = Modifier.size(200.dp),
                 painter = painterResource(id = R.drawable.logo),
