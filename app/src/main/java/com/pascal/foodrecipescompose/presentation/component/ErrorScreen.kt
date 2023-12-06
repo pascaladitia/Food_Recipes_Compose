@@ -1,6 +1,7 @@
 package com.pascal.foodrecipescompose.presentation.component
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,12 +22,14 @@ import com.pascal.foodrecipescompose.R
 @Composable
 fun ErrorScreen(
     modifier: Modifier = Modifier,
-    message: String
+    message: String,
+    onRetry: () -> Unit
 ) {
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(32.dp),
+            .padding(32.dp)
+            .clickable { onRetry() },
         contentAlignment = Alignment.Center
     ) {
         Column {

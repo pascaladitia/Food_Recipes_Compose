@@ -38,6 +38,7 @@ class HomeViewModel @Inject constructor(
 
     suspend fun loadListRecipes(query: String) {
         viewModelScope.launch {
+            _recipes.value = UiState.Loading
             val result = getListRecipesUC.execute(GetListRecipesUC.Params(query))
             result.collect {
                 if (it.meals.isNullOrEmpty()) {

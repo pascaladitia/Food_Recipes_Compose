@@ -75,10 +75,10 @@ fun CategoryScreen(
             }
             is UiState.Error -> {
                 val message = (uiState as UiState.Error).message
-                ErrorScreen(message = message)
+                ErrorScreen(message = message) {}
             }
             is UiState.Empty -> {
-                ErrorScreen(message = stringResource(R.string.empty))
+                ErrorScreen(message = stringResource(R.string.empty)) {}
             }
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data

@@ -90,7 +90,11 @@ fun HomeScreen(
             }
             is UiState.Error -> {
                 val message = (uiState as UiState.Error).message
-                ErrorScreen(message = message)
+                ErrorScreen(message = message) {
+                    coroutineScope.launch {
+                        viewModel.loadListRecipes(generateRandomChar().toString())
+                    }
+                }
             }
             is UiState.Empty -> {
                 HomeContent(
@@ -104,6 +108,11 @@ fun HomeScreen(
                     onSearch = { query ->
                         coroutineScope.launch {
                             viewModel.loadSearchRecipes(query)
+                        }
+                    },
+                    onRetry = {
+                        coroutineScope.launch {
+                            viewModel.loadListRecipes(generateRandomChar().toString())
                         }
                     }
                 )
@@ -123,6 +132,11 @@ fun HomeScreen(
                         coroutineScope.launch {
                             viewModel.loadSearchRecipes(query)
                         }
+                    },
+                    onRetry = {
+                        coroutineScope.launch {
+                            viewModel.loadListRecipes(generateRandomChar().toString())
+                        }
                     }
                 )
             }
@@ -138,7 +152,8 @@ fun HomeContent(
     listRecipe: List<MealsItem?>?,
     onCategoryClick: (String) -> Unit,
     onDetailClick: (String) -> Unit,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    onRetry: () -> Unit
 ) {
     Column(
         modifier = modifier.verticalScroll(rememberScrollState())
@@ -178,7 +193,9 @@ fun HomeContent(
         SectionText(text = stringResource(R.string.just_for_you))
         when(isEmpty) {
             true -> {
-                ErrorScreen(message = stringResource(R.string.empty))
+                ErrorScreen(message = stringResource(R.string.empty)) {
+                    onRetry()
+                }
             }
             false -> {
                 LazyRow(
@@ -354,7 +371,8 @@ fun HomePreview() {
             listRecipe = listRecipe,
             onCategoryClick = {},
             onDetailClick = {},
-            onSearch = {}
+            onSearch = {},
+            onRetry = {}
         )
     }
 }
