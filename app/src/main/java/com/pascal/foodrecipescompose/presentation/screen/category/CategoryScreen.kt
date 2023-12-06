@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +18,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,6 +43,7 @@ import coil.compose.AsyncImage
 import com.pascal.foodrecipescompose.R
 import com.pascal.foodrecipescompose.data.remote.dtos.FilterCategoryItem
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
+import com.pascal.foodrecipescompose.presentation.component.IconCircleBorder
 import com.pascal.foodrecipescompose.presentation.component.ImageModel
 import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
@@ -50,7 +55,8 @@ fun CategoryScreen(
     paddingValues: PaddingValues,
     viewModel: CategoryViewModel = hiltViewModel(),
     query: String,
-    onDetailClick: (String) -> Unit
+    onDetailClick: (String) -> Unit,
+    onNavBack: () -> Unit
 ) {
 
     LaunchedEffect(key1 = true) {
@@ -77,9 +83,13 @@ fun CategoryScreen(
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data
                 CategoryContent(
+                    query = query,
                     listCategory = data?.meals,
                     onDetailClick = {
                         onDetailClick(it)
+                    },
+                    onNavBack = {
+                        onNavBack()
                     }
                 )
             }
@@ -90,25 +100,53 @@ fun CategoryScreen(
 @Composable
 fun CategoryContent(
     modifier: Modifier = Modifier,
+    query: String,
     listCategory: List<FilterCategoryItem?>?,
-    onDetailClick: (String) -> Unit
+    onDetailClick: (String) -> Unit,
+    onNavBack: () -> Unit
 ) {
-    LazyVerticalGrid(
-        modifier = modifier,
-        columns = GridCells.Adaptive(130.dp),
-        state = rememberLazyGridState(),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
-        contentPadding = PaddingValues(24.dp)
-    ) {
-        items(listCategory!!.size) { index ->
-            listCategory[index]?.let { item ->
-                CategoryItemFilter(
-                    item = item,
-                    onDetailClick = {
-                        onDetailClick(it)
-                    }
-                )
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 32.dp, start = 24.dp, end = 24.dp, bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconCircleBorder(
+                size = 42.dp,
+                padding = 6.dp,
+                imageVector = Icons.Outlined.ArrowBack
+            ) {
+                onNavBack()
+            }
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 24.dp),
+                text = query.ifEmpty { stringResource(id = R.string.food_recipes) },
+                style = MaterialTheme.typography.headlineLarge,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(130.dp),
+            state = rememberLazyGridState(),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            contentPadding = PaddingValues(24.dp)
+        ) {
+            items(listCategory!!.size) { index ->
+                listCategory[index]?.let { item ->
+                    CategoryItemFilter(
+                        item = item,
+                        onDetailClick = {
+                            onDetailClick(it)
+                        }
+                    )
+                }
             }
         }
     }
@@ -167,7 +205,9 @@ fun CategoryPreview() {
         )
         CategoryContent(
             listCategory = listCategory,
-            onDetailClick = {}
+            query = "Food",
+            onDetailClick = {},
+            onNavBack = {}
         )
     }
 }

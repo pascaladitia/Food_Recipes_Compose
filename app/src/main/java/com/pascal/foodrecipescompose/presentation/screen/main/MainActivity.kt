@@ -118,6 +118,9 @@ fun MainScreen(
                     query = it.arguments?.getString(QUERY) ?: "",
                     onDetailClick = { query ->
                         navController.navigate(Screen.DetailScreen.createRoute(query))
+                    },
+                    onNavBack = {
+                        navController.popBackStack()
                     }
                 )
             }
