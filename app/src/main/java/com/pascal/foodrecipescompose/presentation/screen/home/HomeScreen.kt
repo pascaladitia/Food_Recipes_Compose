@@ -54,7 +54,6 @@ import com.pascal.foodrecipescompose.data.remote.dtos.MealsItem
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
 import com.pascal.foodrecipescompose.presentation.component.IconCircleBorder
 import com.pascal.foodrecipescompose.presentation.component.ImageModel
-import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.component.Search
 import com.pascal.foodrecipescompose.presentation.component.ShimmerAnimation
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
@@ -94,7 +93,20 @@ fun HomeScreen(
                 ErrorScreen(message = message)
             }
             is UiState.Empty -> {
-                ErrorScreen(message = stringResource(R.string.empty))
+                HomeContent(
+                    isEmpty = true,
+                    listCategory = category?.categories,
+                    listRecipe = emptyList(),
+                    onCategoryClick = { query ->
+                        onCategoryClick(query)
+                    },
+                    onDetailClick = {},
+                    onSearch = { query ->
+                        coroutineScope.launch {
+                            viewModel.loadSearchRecipes(query)
+                        }
+                    }
+                )
             }
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data
@@ -121,6 +133,7 @@ fun HomeScreen(
 @Composable
 fun HomeContent(
     modifier: Modifier = Modifier,
+    isEmpty: Boolean = false,
     listCategory: List<CategoriesItem?>?,
     listRecipe: List<MealsItem?>?,
     onCategoryClick: (String) -> Unit,
@@ -163,17 +176,24 @@ fun HomeContent(
             }
         }
         SectionText(text = stringResource(R.string.just_for_you))
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(horizontal = 24.dp),
-        ) {
-            items(listRecipe ?: emptyList()) { category ->
-                category?.let { item ->
-                    RecipesItem(
-                        item = item,
-                        onDetailClick = { onDetailClick(it) }
-                    )
+        when(isEmpty) {
+            true -> {
+                ErrorScreen(message = stringResource(R.string.empty))
+            }
+            false -> {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(horizontal = 24.dp),
+                ) {
+                    items(listRecipe ?: emptyList()) { category ->
+                        category?.let { item ->
+                            RecipesItem(
+                                item = item,
+                                onDetailClick = { onDetailClick(it) }
+                            )
+                        }
+                    }
                 }
             }
         }
