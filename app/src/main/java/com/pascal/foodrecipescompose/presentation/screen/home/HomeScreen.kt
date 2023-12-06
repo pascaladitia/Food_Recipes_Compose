@@ -56,6 +56,7 @@ import com.pascal.foodrecipescompose.presentation.component.IconCircleBorder
 import com.pascal.foodrecipescompose.presentation.component.ImageModel
 import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.component.Search
+import com.pascal.foodrecipescompose.presentation.component.ShimmerAnimation
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 import com.pascal.foodrecipescompose.utils.UiState
 import com.pascal.foodrecipescompose.utils.generateRandomChar
@@ -86,7 +87,7 @@ fun HomeScreen(
     ) {
         when (uiState) {
             is UiState.Loading -> {
-                LoadingScreen()
+                ShimmerAnimation()
             }
             is UiState.Error -> {
                 val message = (uiState as UiState.Error).message
