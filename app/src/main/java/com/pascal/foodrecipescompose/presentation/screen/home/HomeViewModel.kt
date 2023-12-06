@@ -4,15 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pascal.foodrecipescompose.data.local.model.FavoritesEntity
 import com.pascal.foodrecipescompose.data.remote.dtos.CategoryResponse
-import com.pascal.foodrecipescompose.data.remote.dtos.FilterCategoryResponse
 import com.pascal.foodrecipescompose.data.remote.dtos.ListRecipesResponse
-import com.pascal.foodrecipescompose.domain.model.DetailRecipesMapping
 import com.pascal.foodrecipescompose.domain.usecase.GetCategoryUC
-import com.pascal.foodrecipescompose.domain.usecase.GetDetailRecipesUC
-import com.pascal.foodrecipescompose.domain.usecase.GetFilterCategoryUC
 import com.pascal.foodrecipescompose.domain.usecase.GetListRecipesUC
 import com.pascal.foodrecipescompose.domain.usecase.GetSearchRecipesUC
-import com.pascal.foodrecipescompose.domain.usecase.UpdateFavorites
+import com.pascal.foodrecipescompose.domain.usecase.FavoriteUC
 import com.pascal.foodrecipescompose.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +22,7 @@ class HomeViewModel @Inject constructor(
     private val getCategoryUC: GetCategoryUC,
     private val getListRecipesUC: GetListRecipesUC,
     private val getSearchRecipesUC: GetSearchRecipesUC,
-    private val updateFavorites: UpdateFavorites
+    private val favoriteUC: FavoriteUC
 ): ViewModel() {
 
     private val _recipes = MutableStateFlow<UiState<ListRecipesResponse?>>(UiState.Loading)
@@ -74,7 +70,7 @@ class HomeViewModel @Inject constructor(
 
     fun updateFavMovie(item: FavoritesEntity, favChecked: Boolean) {
         viewModelScope.launch {
-            updateFavorites.execute(UpdateFavorites.Params(item, favChecked))
+            favoriteUC.updateFavorite(FavoriteUC.Params(item, favChecked))
         }
     }
 }

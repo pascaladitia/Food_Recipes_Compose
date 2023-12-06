@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.EmojiFoodBeverage
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Icon
@@ -28,6 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.pascal.foodrecipescompose.R
+import com.pascal.foodrecipescompose.data.local.model.FavoritesEntity
 import com.pascal.foodrecipescompose.domain.model.DetailRecipesMapping
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
 import com.pascal.foodrecipescompose.presentation.component.IconCircleBorder
@@ -57,7 +62,7 @@ fun DetailScreen(
     paddingValues: PaddingValues,
     viewModel: DetailViewModel = hiltViewModel(),
     query: String,
-    onNavBack: () ->  Unit
+    onNavBack: () -> Unit
 ) {
     LaunchedEffect(key1 = true) {
         viewModel.loadDetailRecipes(query)
@@ -69,21 +74,25 @@ fun DetailScreen(
         modifier = modifier.padding(paddingValues),
         color = MaterialTheme.colorScheme.background
     ) {
-        when(uiState) {
+        when (uiState) {
             is UiState.Loading -> {
                 LoadingScreen()
             }
+
             is UiState.Error -> {
                 val message = (uiState as UiState.Error).message
                 ErrorScreen(message = message) {}
             }
+
             is UiState.Empty -> {
                 ErrorScreen(message = stringResource(R.string.empty)) {}
             }
+
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data
                 DetailContent(
-                    detailRecipesMapping = data,
+                    item = data,
+                    viewModel = viewModel,
                     onNavBack = {
                         onNavBack()
                     }
@@ -96,9 +105,14 @@ fun DetailScreen(
 @Composable
 fun DetailContent(
     modifier: Modifier = Modifier,
-    detailRecipesMapping: DetailRecipesMapping?,
+    item: DetailRecipesMapping?,
+    viewModel: DetailViewModel?,
     onNavBack: () -> Unit
 ) {
+    var favBtnClicked by rememberSaveable {
+        mutableStateOf(item?.isFavorite ?: false)
+    }
+
     Column(
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
@@ -119,15 +133,28 @@ fun DetailContent(
             IconCircleBorder(
                 size = 42.dp,
                 padding = 6.dp,
-                imageVector = Icons.Outlined.FavoriteBorder
+                imageVector = if (favBtnClicked) Icons.Outlined.Favorite
+                                else Icons.Outlined.FavoriteBorder
             ) {
+                favBtnClicked = !favBtnClicked
 
+                viewModel?.updateFavorite(
+                    FavoritesEntity(
+                        item?.idMeal?.toIntOrNull() ?: 0,
+                        item?.strMeal,
+                        item?.strMealThumb,
+                        item?.strCategory,
+                        item?.strTags,
+                        item?.strYoutube
+                    ),
+                    favBtnClicked
+                )
             }
         }
-        ImageRecipes(item = detailRecipesMapping)
-        TitleDetail(item = detailRecipesMapping)
-        ContentDetail(item = detailRecipesMapping)
-        ContentDetailWithTabs(item = detailRecipesMapping)
+        ImageRecipes(item = item)
+        TitleDetail(item = item)
+        ContentDetail(item = item)
+        ContentDetailWithTabs(item = item)
     }
 }
 
@@ -183,7 +210,10 @@ fun TitleDetail(
                 ) {
                     Icon(imageVector = Icons.Outlined.EmojiFoodBeverage, contentDescription = "")
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = item?.strTags ?: stringResource(id = R.string.no_tags), style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = item?.strTags ?: stringResource(id = R.string.no_tags),
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         }
@@ -202,9 +232,10 @@ fun ContentDetail(
     modifier: Modifier = Modifier,
     item: DetailRecipesMapping?,
 ) {
-    Row(modifier = modifier
-        .fillMaxWidth()
-        .padding(top = 24.dp, start = 24.dp, end = 24.dp)
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 24.dp, start = 24.dp, end = 24.dp)
     ) {
         Column(
             modifier = Modifier
@@ -261,7 +292,8 @@ fun DetailPreview() {
             strCategory = "category"
         )
         DetailContent(
-            detailRecipesMapping = detail,
+            item = detail,
+            viewModel = null,
             onNavBack = {
 
             }

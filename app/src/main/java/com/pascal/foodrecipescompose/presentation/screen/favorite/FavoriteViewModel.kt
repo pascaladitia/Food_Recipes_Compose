@@ -12,7 +12,7 @@ import com.pascal.foodrecipescompose.domain.usecase.GetDetailRecipesUC
 import com.pascal.foodrecipescompose.domain.usecase.GetFilterCategoryUC
 import com.pascal.foodrecipescompose.domain.usecase.GetListRecipesUC
 import com.pascal.foodrecipescompose.domain.usecase.GetSearchRecipesUC
-import com.pascal.foodrecipescompose.domain.usecase.UpdateFavorites
+import com.pascal.foodrecipescompose.domain.usecase.FavoriteUC
 import com.pascal.foodrecipescompose.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +28,7 @@ class FavoriteViewModel @Inject constructor(
     private val getListRecipesUC: GetListRecipesUC,
     private val getSearchRecipesUC: GetSearchRecipesUC,
     private val getDetailRecipesUC: GetDetailRecipesUC,
-    private val updateFavorites: UpdateFavorites
+    private val favoriteUC: FavoriteUC
 ): ViewModel() {
 
     private val _filterCategory = MutableStateFlow<UiState<FilterCategoryResponse?>>(UiState.Loading)
@@ -106,7 +106,7 @@ class FavoriteViewModel @Inject constructor(
 
     fun updateFavMovie(item: FavoritesEntity, favChecked: Boolean) {
         viewModelScope.launch {
-            updateFavorites.execute(UpdateFavorites.Params(item, favChecked))
+            favoriteUC.updateFavorite(FavoriteUC.Params(item, favChecked))
         }
     }
 }

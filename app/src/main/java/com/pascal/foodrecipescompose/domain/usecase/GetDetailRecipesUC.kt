@@ -8,6 +8,7 @@ import javax.inject.Inject
 class GetDetailRecipesUC @Inject constructor(private val repository: IRepository) {
     suspend fun execute(params: Params): DetailRecipesMapping {
         val recipe = repository.getDetailRecipe(params.query).meals?.firstOrNull()
+        val isFavorite = repository.getFavoriteStatus(params.query.toIntOrNull() ?: 0)
 
         val listIngredient = mutableListOf<IngredientMapping>()
         addIngredientIfNotNull(listIngredient, recipe?.strIngredient1, recipe?.strMeasure1)
@@ -45,6 +46,7 @@ class GetDetailRecipesUC @Inject constructor(private val repository: IRepository
             dateModified = recipe?.dateModified?.toString(),
             strDrinkAlternate = recipe?.strDrinkAlternate?.toString(),
             strSource = recipe?.strSource,
+            isFavorite = isFavorite,
             listIngredient = listIngredient
         )
     }

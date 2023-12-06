@@ -14,6 +14,7 @@ data class DetailRecipesMapping(
     val dateModified: String? = null,
     val strDrinkAlternate: String? = null,
     val strSource: String? = null,
+    val isFavorite: Boolean? = false,
     val listIngredient: MutableList<IngredientMapping>? = null
 )
 

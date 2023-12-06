@@ -8,5 +8,9 @@ import com.pascal.foodrecipescompose.data.local.database.DatabaseConstants
 data class FavoritesEntity (
     @PrimaryKey
     val id: Int,
-    val posterPath: String,
+    val name: String? = null,
+    val imagePath: String? = null,
+    val category: String? = null,
+    val tags: String? = null,
+    val youtubeUrl: String? = null
 )

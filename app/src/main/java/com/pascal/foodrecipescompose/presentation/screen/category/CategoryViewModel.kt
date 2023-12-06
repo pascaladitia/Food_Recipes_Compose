@@ -2,17 +2,8 @@ package com.pascal.foodrecipescompose.presentation.screen.category
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pascal.foodrecipescompose.data.local.model.FavoritesEntity
-import com.pascal.foodrecipescompose.data.remote.dtos.CategoryResponse
 import com.pascal.foodrecipescompose.data.remote.dtos.FilterCategoryResponse
-import com.pascal.foodrecipescompose.data.remote.dtos.ListRecipesResponse
-import com.pascal.foodrecipescompose.domain.model.DetailRecipesMapping
-import com.pascal.foodrecipescompose.domain.usecase.GetCategoryUC
-import com.pascal.foodrecipescompose.domain.usecase.GetDetailRecipesUC
 import com.pascal.foodrecipescompose.domain.usecase.GetFilterCategoryUC
-import com.pascal.foodrecipescompose.domain.usecase.GetListRecipesUC
-import com.pascal.foodrecipescompose.domain.usecase.GetSearchRecipesUC
-import com.pascal.foodrecipescompose.domain.usecase.UpdateFavorites
 import com.pascal.foodrecipescompose.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
