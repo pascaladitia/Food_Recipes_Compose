@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -138,8 +139,7 @@ fun CategoryItemFilter(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .width(150.dp)
-                    .height(180.dp)
+                    .size(150.dp)
                     .clip(RoundedCornerShape(16.dp))
                     .border(1.dp, Color.Black, RoundedCornerShape(16.dp))
             )
