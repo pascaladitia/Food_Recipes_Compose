@@ -9,4 +9,5 @@
     <string name="area">Area</string>
     <string name="ingredients">Ingredients</string>
     <string name="step_cooking">Step Cooking</string>
+    <string name="empty">Data empty, please try again!</string>
 </resources>

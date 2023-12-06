@@ -56,7 +56,6 @@ import com.pascal.foodrecipescompose.presentation.component.IconCircleBorder
 import com.pascal.foodrecipescompose.presentation.component.ImageModel
 import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.component.Search
-import com.pascal.foodrecipescompose.presentation.screen.main.MainViewModel
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 import com.pascal.foodrecipescompose.utils.UiState
 import com.pascal.foodrecipescompose.utils.generateRandomChar
@@ -67,7 +66,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
-    viewModel: MainViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
     onCategoryClick: (String) -> Unit,
     onDetailClick: (String) -> Unit
 ) {
@@ -92,6 +91,9 @@ fun HomeScreen(
             is UiState.Error -> {
                 val message = (uiState as UiState.Error).message
                 ErrorScreen(message = message)
+            }
+            is UiState.Empty -> {
+                ErrorScreen(message = stringResource(R.string.empty))
             }
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data

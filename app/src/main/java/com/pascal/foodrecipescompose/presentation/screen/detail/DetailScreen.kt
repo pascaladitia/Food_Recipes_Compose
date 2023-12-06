@@ -47,7 +47,6 @@ import com.pascal.foodrecipescompose.presentation.component.IconCircleBorder
 import com.pascal.foodrecipescompose.presentation.component.ImageModel
 import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.screen.detail.tabs.ContentDetailWithTabs
-import com.pascal.foodrecipescompose.presentation.screen.main.MainViewModel
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 import com.pascal.foodrecipescompose.utils.UiState
 import com.pascal.foodrecipescompose.utils.intentActionView
@@ -56,7 +55,7 @@ import com.pascal.foodrecipescompose.utils.intentActionView
 fun DetailScreen(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
-    viewModel: MainViewModel = hiltViewModel(),
+    viewModel: DetailViewModel = hiltViewModel(),
     query: String,
     onNavBack: () ->  Unit
 ) {
@@ -77,6 +76,9 @@ fun DetailScreen(
             is UiState.Error -> {
                 val message = (uiState as UiState.Error).message
                 ErrorScreen(message = message)
+            }
+            is UiState.Empty -> {
+                ErrorScreen(message = stringResource(R.string.empty))
             }
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data
