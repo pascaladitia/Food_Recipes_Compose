@@ -53,7 +53,7 @@ fun IngredientsTab(modifier: Modifier = Modifier, item: DetailRecipesMapping?) {
                     modifier = Modifier
                         .padding(14.dp)
                         .fillMaxWidth()
-                        .padding(end = 12.dp)
+                        .padding(end = 20.dp)
                 ) {
                     Text(
                         text = data.strIngredient ?: "-",

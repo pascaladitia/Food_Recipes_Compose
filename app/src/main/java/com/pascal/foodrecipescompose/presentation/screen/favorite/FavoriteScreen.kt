@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.EmojiFoodBeverage
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.Icon
@@ -100,21 +101,32 @@ fun FavoriteContent(
     listFavorite: List<FavoritesEntity?>?,
     onDetailClick: (String) -> Unit
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(130.dp),
-        state = rememberLazyGridState(),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        horizontalArrangement = Arrangement.spacedBy(24.dp),
-        contentPadding = PaddingValues(24.dp)
+    Column(
+        modifier = modifier.padding(top = 32.dp)
     ) {
-        items(listFavorite!!.size) { index ->
-            listFavorite[index]?.let { item ->
-                FavoriteItem(
-                    item = item,
-                    onDetailClick = {
-                        onDetailClick(it.toString())
-                    }
-                )
+        Text(
+            modifier = Modifier
+                .padding(start = 24.dp, bottom = 16.dp),
+            text = "Your Favorite",
+            style = MaterialTheme.typography.headlineLarge
+        )
+
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(130.dp),
+            state = rememberLazyGridState(),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp),
+            contentPadding = PaddingValues(24.dp)
+        ) {
+            items(listFavorite!!.size) { index ->
+                listFavorite[index]?.let { item ->
+                    FavoriteItem(
+                        item = item,
+                        onDetailClick = {
+                            onDetailClick(it.toString())
+                        }
+                    )
+                }
             }
         }
     }

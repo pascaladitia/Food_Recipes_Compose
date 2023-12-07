@@ -21,8 +21,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getCategoryUC: GetCategoryUC,
     private val getListRecipesUC: GetListRecipesUC,
-    private val getSearchRecipesUC: GetSearchRecipesUC,
-    private val favoriteUC: FavoriteUC
+    private val getSearchRecipesUC: GetSearchRecipesUC
 ): ViewModel() {
 
     private val _recipes = MutableStateFlow<UiState<ListRecipesResponse?>>(UiState.Loading)
@@ -65,12 +64,6 @@ class HomeViewModel @Inject constructor(
             result.catch {
                 _recipes.value = UiState.Error(it.message.toString())
             }
-        }
-    }
-
-    fun updateFavMovie(item: FavoritesEntity, favChecked: Boolean) {
-        viewModelScope.launch {
-            favoriteUC.updateFavorite(FavoriteUC.Params(item, favChecked))
         }
     }
 }
