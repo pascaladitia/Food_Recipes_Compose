@@ -15,8 +15,8 @@ import com.pascal.foodrecipescompose.presentation.screen.category.CategoryScreen
 import com.pascal.foodrecipescompose.presentation.screen.detail.DetailScreen
 import com.pascal.foodrecipescompose.presentation.screen.favorite.FavoriteScreen
 import com.pascal.foodrecipescompose.presentation.screen.home.HomeScreen
-import com.pascal.foodrecipescompose.presentation.screen.main.SplashScreen
 import com.pascal.foodrecipescompose.presentation.screen.profile.ProfileScreen
+import com.pascal.foodrecipescompose.presentation.screen.splash.SplashScreen
 import com.pascal.foodrecipescompose.utils.QUERY
 
 @Composable
