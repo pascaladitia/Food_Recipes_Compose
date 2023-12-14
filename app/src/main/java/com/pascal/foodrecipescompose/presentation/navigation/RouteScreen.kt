@@ -76,7 +76,7 @@ fun RouteScreen(
             }
             composable(route = Screen.ProfileScreen.route) {
                 ProfileScreen(
-
+                    paddingValues = paddingValues
                 )
             }
             composable(

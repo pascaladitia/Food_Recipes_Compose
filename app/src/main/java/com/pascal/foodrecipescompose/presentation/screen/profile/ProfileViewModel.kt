@@ -2,17 +2,8 @@ package com.pascal.foodrecipescompose.presentation.screen.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pascal.foodrecipescompose.data.local.model.FavoritesEntity
-import com.pascal.foodrecipescompose.data.remote.dtos.CategoryResponse
-import com.pascal.foodrecipescompose.data.remote.dtos.FilterCategoryResponse
-import com.pascal.foodrecipescompose.data.remote.dtos.ListRecipesResponse
-import com.pascal.foodrecipescompose.domain.model.DetailRecipesMapping
-import com.pascal.foodrecipescompose.domain.usecase.GetCategoryUC
-import com.pascal.foodrecipescompose.domain.usecase.GetDetailRecipesUC
-import com.pascal.foodrecipescompose.domain.usecase.GetFilterCategoryUC
-import com.pascal.foodrecipescompose.domain.usecase.GetListRecipesUC
-import com.pascal.foodrecipescompose.domain.usecase.GetSearchRecipesUC
-import com.pascal.foodrecipescompose.domain.usecase.FavoriteUC
+import com.pascal.foodrecipescompose.data.local.model.ProfileEntity
+import com.pascal.foodrecipescompose.domain.usecase.ProfileUC
 import com.pascal.foodrecipescompose.utils.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,90 +14,33 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val getCategoryUC: GetCategoryUC,
-    private val getFilterCategoryUC: GetFilterCategoryUC,
-    private val getListRecipesUC: GetListRecipesUC,
-    private val getSearchRecipesUC: GetSearchRecipesUC,
-    private val getDetailRecipesUC: GetDetailRecipesUC,
-    private val favoriteUC: FavoriteUC
+    private val profileUC: ProfileUC
 ): ViewModel() {
 
-    private val _filterCategory = MutableStateFlow<UiState<FilterCategoryResponse?>>(UiState.Loading)
-    val filterCategory: StateFlow<UiState<FilterCategoryResponse?>> = _filterCategory
+    private val _profile = MutableStateFlow<UiState<ProfileEntity>>(UiState.Loading)
+    val profile: StateFlow<UiState<ProfileEntity>> = _profile
 
-    private val _recipes = MutableStateFlow<UiState<ListRecipesResponse?>>(UiState.Loading)
-    val recipes: StateFlow<UiState<ListRecipesResponse?>> = _recipes
-
-    private val _detailRecipes = MutableStateFlow<UiState<DetailRecipesMapping?>>(UiState.Loading)
-    val detailRecipes: StateFlow<UiState<DetailRecipesMapping?>> = _detailRecipes
-
-    suspend fun loadCategory(): CategoryResponse {
-        return getCategoryUC.execute()
-    }
-
-    suspend fun loadFilterCategory(query: String) {
+    suspend fun loadProfile() {
         viewModelScope.launch {
-            val result = getFilterCategoryUC.execute(GetFilterCategoryUC.Params(query))
+            _profile.value = UiState.Loading
+            val result = profileUC.getProfile()
             result.collect {
-                if (it.meals.isNullOrEmpty()) {
-                    _filterCategory.value = UiState.Empty
+                if (it.id.toString().isNotEmpty()) {
+                    _profile.value = UiState.Empty
                 } else {
-                    _filterCategory.value = UiState.Success(it)
-                }
-            }
-            result.catch {
-                _filterCategory.value = UiState.Error(it.message.toString())
-            }
-        }
-    }
-
-    suspend fun loadListRecipes(query: String) {
-        viewModelScope.launch {
-            val result = getListRecipesUC.execute(GetListRecipesUC.Params(query))
-            result.collect {
-                if (it.meals.isNullOrEmpty()) {
-                    _recipes.value = UiState.Empty
-                } else {
-                    _recipes.value = UiState.Success(it)
+                    _profile.value = UiState.Success(it)
                 }
             }
 
             result.catch {
-                _recipes.value = UiState.Error(it.message.toString())
+                _profile.value = UiState.Error(it.message.toString())
             }
         }
     }
-
-    suspend fun loadSearchRecipes(query: String) {
+    
+    fun addProfile(item: ProfileEntity) {
         viewModelScope.launch {
-            _recipes.value = UiState.Loading
-            val result = getSearchRecipesUC.execute(GetSearchRecipesUC.Params(query))
-            result.collect {
-                if (it.meals.isNullOrEmpty()) {
-                    _recipes.value = UiState.Empty
-                } else {
-                    _recipes.value = UiState.Success(it)
-                }
-            }
-
-            result.catch {
-                _recipes.value = UiState.Error(it.message.toString())
-            }
-        }
-    }
-
-    suspend fun loadDetailRecipes(query: String) {
-        try {
-            val result = getDetailRecipesUC.execute(GetDetailRecipesUC.Params(query))
-            _detailRecipes.value = UiState.Success(result)
-        } catch (e: Exception) {
-            _detailRecipes.value = UiState.Error(e.toString())
-        }
-    }
-
-    fun updateFavMovie(item: FavoritesEntity, favChecked: Boolean) {
-        viewModelScope.launch {
-            favoriteUC.updateFavorite(FavoriteUC.Params(item, favChecked))
+            profileUC.addProfile(ProfileUC.Params(item))
         }
     }
 }
