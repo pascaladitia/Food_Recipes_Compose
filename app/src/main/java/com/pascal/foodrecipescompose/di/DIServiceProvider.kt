@@ -11,8 +11,10 @@ import com.pascal.foodrecipescompose.data.setup.HttpClientFactory
 import com.pascal.foodrecipescompose.data.setup.ServiceFactory
 import com.pascal.foodrecipescompose.di.NetworkConfig.BASE_DOMAIN
 import com.pascal.foodrecipescompose.di.NetworkConfig.allowedSSlFingerprints
-import com.pascal.foodrecipescompose.domain.repository.IRepository
-import com.pascal.foodrecipescompose.domain.repository.Repository
+import com.pascal.foodrecipescompose.domain.repository.local.ILocalRepository
+import com.pascal.foodrecipescompose.domain.repository.local.LocalRepository
+import com.pascal.foodrecipescompose.domain.repository.remote.IRemoteRepository
+import com.pascal.foodrecipescompose.domain.repository.remote.RemoteRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -52,8 +54,14 @@ object DIServiceProvider {
 
     @Singleton
     @Provides
-    fun provideRepository(appService: AppService, localDataSource: LocalDataSource): IRepository {
-        return Repository(appService, localDataSource)
+    fun provideRemoteRepository(appService: AppService): IRemoteRepository {
+        return RemoteRepository(appService)
+    }
+
+    @Singleton
+    @Provides
+    fun provideLocalRepository(localDataSource: LocalDataSource): ILocalRepository {
+        return LocalRepository(localDataSource)
     }
 
 }

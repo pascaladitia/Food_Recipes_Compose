@@ -2,13 +2,17 @@ package com.pascal.foodrecipescompose.domain.usecase
 
 import com.pascal.foodrecipescompose.domain.model.DetailRecipesMapping
 import com.pascal.foodrecipescompose.domain.model.IngredientMapping
-import com.pascal.foodrecipescompose.domain.repository.IRepository
+import com.pascal.foodrecipescompose.domain.repository.local.ILocalRepository
+import com.pascal.foodrecipescompose.domain.repository.remote.IRemoteRepository
 import javax.inject.Inject
 
-class GetDetailRecipesUC @Inject constructor(private val repository: IRepository) {
+class GetDetailRecipesUC @Inject constructor(
+    private val remoteRepository: IRemoteRepository,
+    private val localRepository: ILocalRepository
+) {
     suspend fun execute(params: Params): DetailRecipesMapping {
-        val recipe = repository.getDetailRecipe(params.query).meals?.firstOrNull()
-        val isFavorite = repository.getFavoriteStatus(params.query.toIntOrNull() ?: 0)
+        val recipe = remoteRepository.getDetailRecipe(params.query).meals?.firstOrNull()
+        val isFavorite = localRepository.getFavoriteStatus(params.query.toIntOrNull() ?: 0)
 
         val listIngredient = mutableListOf<IngredientMapping>()
         addIngredientIfNotNull(listIngredient, recipe?.strIngredient1, recipe?.strMeasure1)
