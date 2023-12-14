@@ -9,7 +9,7 @@ interface ILocalRepository {
     suspend fun updateFavorite(item: FavoritesEntity, checkFav: Boolean)
     suspend fun getFavoriteStatus(Id: Int): Boolean
 
-    suspend fun getProfile(): Flow<ProfileEntity>
+    suspend fun getProfile(): Flow<ProfileEntity?>
     suspend fun addProfile(item: ProfileEntity)
     suspend fun deleteProfile(item: ProfileEntity)
 }

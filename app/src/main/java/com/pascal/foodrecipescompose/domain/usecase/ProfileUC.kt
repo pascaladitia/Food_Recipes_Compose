@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ProfileUC @Inject constructor(private val repository: ILocalRepository) {
-    suspend fun getProfile(): Flow<ProfileEntity> {
+    suspend fun getProfile(): Flow<ProfileEntity?> {
         return repository.getProfile()
     }
 

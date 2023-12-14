@@ -30,7 +30,7 @@ internal class LocalRepository @Inject constructor(
     }
 
     // Profile
-    override suspend fun getProfile(): Flow<ProfileEntity> {
+    override suspend fun getProfile(): Flow<ProfileEntity?> {
         return flowOf(localDataSource.getProfile())
     }
 

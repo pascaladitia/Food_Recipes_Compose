@@ -7,7 +7,7 @@ import com.pascal.foodrecipescompose.data.local.database.DatabaseConstants
 @Entity(tableName = DatabaseConstants.TABLE_PROFILE)
 data class ProfileEntity (
     @PrimaryKey
-    val id: Int,
+    val id: Int? = null,
     val name: String? = null,
     val imagePath: String? = null,
     val desc: String? = null,

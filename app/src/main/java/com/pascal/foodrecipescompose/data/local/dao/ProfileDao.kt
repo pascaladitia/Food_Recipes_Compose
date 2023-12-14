@@ -13,7 +13,7 @@ abstract class ProfileDao {
     abstract suspend fun deleteProfile(item: ProfileEntity) : Int
 
     @Query("SELECT * FROM ${DatabaseConstants.TABLE_PROFILE}")
-    abstract suspend fun getProfile(): ProfileEntity
+    abstract suspend fun getProfile(): ProfileEntity?
 
     @Query("DELETE FROM ${DatabaseConstants.TABLE_PROFILE}")
     abstract suspend fun clearProfilesTable()

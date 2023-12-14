@@ -36,7 +36,7 @@ class LocalDataSource @Inject constructor(@AppMainDB private val database: AppDa
         database.profileDao().deleteProfile(profileEntity)
     }
 
-    suspend fun getProfile(): ProfileEntity {
+    suspend fun getProfile(): ProfileEntity? {
         return database.profileDao().getProfile()
     }
 }

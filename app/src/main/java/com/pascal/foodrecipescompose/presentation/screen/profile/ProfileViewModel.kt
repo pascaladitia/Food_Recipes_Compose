@@ -25,7 +25,7 @@ class ProfileViewModel @Inject constructor(
             _profile.value = UiState.Loading
             val result = profileUC.getProfile()
             result.collect {
-                if (it.id.toString().isNotEmpty()) {
+                if (it == null) {
                     _profile.value = UiState.Empty
                 } else {
                     _profile.value = UiState.Success(it)
