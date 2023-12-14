@@ -47,7 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import com.pascal.foodrecipescompose.R
 import com.pascal.foodrecipescompose.data.local.model.ProfileEntity
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
@@ -147,9 +149,11 @@ fun ProfileContent(
         )
 
         Image(
-            painter = rememberImagePainter(data = imageUri, builder = {
-                crossfade(true)
-            }),
+            painter = rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current).data(data = imageUri).apply(block = fun ImageRequest.Builder.() {
+                    crossfade(true)
+                }).build()
+            ),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
