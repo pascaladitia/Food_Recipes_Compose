@@ -1,6 +1,9 @@
 package com.pascal.foodrecipescompose.presentation.screen.profile
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -40,22 +43,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
-import com.pascal.foodrecipescompose.R
+import com.pascal.foodrecipescompose.BuildConfig
 import com.pascal.foodrecipescompose.data.local.model.ProfileEntity
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
 import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 import com.pascal.foodrecipescompose.utils.UiState
+import com.pascal.foodrecipescompose.utils.createImageFile
+import java.util.Objects
 
 @Composable
 fun ProfileScreen(
@@ -105,23 +109,54 @@ fun ProfileContent(
     var name by remember { mutableStateOf("John Doe") }
     var email by remember { mutableStateOf("john.doe@example.com") }
     var phone by remember { mutableStateOf("123-456-7890") }
-    var address by remember { mutableStateOf("indonesia") }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var address by remember { mutableStateOf("Indonesia") }
+    var galleryImageUri by remember { mutableStateOf<Uri?>(null) }
 
     val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-        // Handle the result from the image picker
-        imageUri = uri
+    val galleryLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+        galleryImageUri = uri
+    }
+
+    val file = context.createImageFile()
+    val uri = FileProvider.getUriForFile(
+        Objects.requireNonNull(context),
+        BuildConfig.APPLICATION_ID + ".provider",
+        file
+    )
+
+    var capturedImageUri by remember {
+        mutableStateOf<Uri>(Uri.EMPTY)
+    }
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            capturedImageUri = uri
+        }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+            cameraLauncher.launch(uri)
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
     }
 
     ConstraintLayout(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         val (image, imageProfile, formField, cardView) = createRefs()
 
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
+            painter = rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current).data(data = capturedImageUri)
+                    .apply {
+                        crossfade(true)
+                    }
+                    .build()
+            ),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -131,6 +166,15 @@ fun ProfileContent(
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
+                }
+                .clickable {
+                    val permissionCheckResult =
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                        cameraLauncher.launch(uri)
+                    } else {
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
                 }
         )
 
@@ -150,9 +194,11 @@ fun ProfileContent(
 
         Image(
             painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current).data(data = imageUri).apply(block = fun ImageRequest.Builder.() {
-                    crossfade(true)
-                }).build()
+                ImageRequest.Builder(LocalContext.current).data(data = galleryImageUri)
+                    .apply {
+                        crossfade(true)
+                    }
+                    .build()
             ),
             contentDescription = null,
             contentScale = ContentScale.Crop,
@@ -166,8 +212,7 @@ fun ProfileContent(
                     centerAround(cardView.top)
                 }
                 .clickable {
-                    // Launch the image picker when the image is clicked
-                    launcher.launch("image/*")
+                    galleryLauncher.launch("image/*")
                 }
         )
 
@@ -186,6 +231,7 @@ fun ProfileContent(
                 singleLine = true
             )
             Spacer(modifier = Modifier.height(24.dp))
+
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -194,6 +240,7 @@ fun ProfileContent(
                 singleLine = true
             )
             Spacer(modifier = Modifier.height(24.dp))
+
             OutlinedTextField(
                 value = phone,
                 onValueChange = { phone = it },
@@ -202,6 +249,7 @@ fun ProfileContent(
                 singleLine = true
             )
             Spacer(modifier = Modifier.height(24.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -218,6 +266,7 @@ fun ProfileContent(
         }
     }
 }
+
 
 
 @Preview(showSystemUi = true)
