@@ -1,8 +1,12 @@
 package com.pascal.foodrecipescompose.presentation.screen.profile
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,9 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberImagePainter
 import com.pascal.foodrecipescompose.R
 import com.pascal.foodrecipescompose.data.local.model.ProfileEntity
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
@@ -77,7 +80,10 @@ fun ProfileScreen(
                 ErrorScreen(message = message) {}
             }
             is UiState.Empty -> {
-                ErrorScreen(message = stringResource(R.string.empty)) {}
+//                ErrorScreen(message = stringResource(R.string.empty)) {}
+                ProfileContent(
+                    itemProfile = ProfileEntity()
+                )
             }
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data
@@ -97,7 +103,14 @@ fun ProfileContent(
     var name by remember { mutableStateOf("John Doe") }
     var email by remember { mutableStateOf("john.doe@example.com") }
     var phone by remember { mutableStateOf("123-456-7890") }
-    var rating by remember { mutableStateOf(4.5f) }
+    var address by remember { mutableStateOf("indonesia") }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+        // Handle the result from the image picker
+        imageUri = uri
+    }
 
     ConstraintLayout(
         modifier = Modifier
@@ -134,16 +147,23 @@ fun ProfileContent(
         )
 
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
+            painter = rememberImagePainter(data = imageUri, builder = {
+                crossfade(true)
+            }),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .border(6.dp, Color.White, CircleShape)
                 .clip(CircleShape)
                 .size(150.dp)
+                .background(Color.White, CircleShape)
                 .constrainAs(imageProfile) {
                     centerHorizontallyTo(parent)
                     centerAround(cardView.top)
+                }
+                .clickable {
+                    // Launch the image picker when the image is clicked
+                    launcher.launch("image/*")
                 }
         )
 
@@ -189,11 +209,12 @@ fun ProfileContent(
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Rating: $rating")
+                Text(text = "Address: $address")
             }
         }
     }
 }
+
 
 @Preview(showSystemUi = true)
 @Composable
