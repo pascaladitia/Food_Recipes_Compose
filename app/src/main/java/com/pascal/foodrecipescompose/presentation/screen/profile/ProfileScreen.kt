@@ -100,6 +100,7 @@ fun ProfileScreen(
                         itemProfile = ProfileEntity(),
                         onSave = {
                             viewModel.addProfile(it)
+                            editMode = false
 
                             coroutineScope.launch {
                                 delay(200)
@@ -114,8 +115,8 @@ fun ProfileScreen(
                         ProfileEditContent(
                             itemProfile = data,
                             onSave = {
-                                editMode = false
                                 viewModel.addProfile(it)
+                                editMode = false
 
                                 coroutineScope.launch {
                                     delay(200)
@@ -160,7 +161,7 @@ fun ProfileContent(
             painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current)
                     .data(data = imageUri)
-                    .placeholder(R.drawable.no_thumbnail)
+                    .error(R.drawable.no_thumbnail)
                     .apply { crossfade(true) }
                     .build()
             ),
@@ -194,7 +195,7 @@ fun ProfileContent(
             painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current)
                     .data(data = imageProfileUri)
-                    .placeholder(R.drawable.no_profile)
+                    .error(R.drawable.no_profile)
                     .apply { crossfade(true) }
                     .build()
             ),
@@ -311,7 +312,7 @@ fun ProfileEditContent(
             painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current)
                     .data(data = imageUri ?: R.drawable.no_thumbnail)
-                    .placeholder(R.drawable.no_thumbnail)
+                    .error(R.drawable.no_thumbnail)
                     .apply { crossfade(true) }
                     .build()
             ),
@@ -354,7 +355,7 @@ fun ProfileEditContent(
             painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current)
                     .data(data = imageProfileUri ?: R.drawable.no_profile)
-                    .placeholder(R.drawable.no_profile)
+                    .error(R.drawable.no_profile)
                     .apply { crossfade(true) }
                     .build()
             ),
