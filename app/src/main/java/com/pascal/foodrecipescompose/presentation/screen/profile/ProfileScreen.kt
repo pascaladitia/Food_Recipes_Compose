@@ -10,6 +10,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +26,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -38,6 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -111,6 +117,7 @@ fun ProfileContent(
     var phone by remember { mutableStateOf("123-456-7890") }
     var address by remember { mutableStateOf("Indonesia") }
     var galleryImageUri by remember { mutableStateOf<Uri?>(null) }
+    var showDialogCapture by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val galleryLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -212,7 +219,8 @@ fun ProfileContent(
                     centerAround(cardView.top)
                 }
                 .clickable {
-                    galleryLauncher.launch("image/*")
+//                    galleryLauncher.launch("image/*")
+                    showDialogCapture = true
                 }
         )
 
@@ -264,9 +272,76 @@ fun ProfileContent(
                 Text(text = "Address: $address")
             }
         }
+
+        if (showDialogCapture) {
+            CameraGalleryDialog { selectedOption ->
+                // Lakukan sesuatu berdasarkan opsi yang dipilih
+                showDialogCapture = false
+                // Misalnya, tampilkan pesan opsi yang dipilih
+                Toast.makeText(context, "Anda memilih: $selectedOption", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun CameraGalleryDialog(onSelect: (String) -> Unit) {
+    var selectedOption by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = {
+            // Handle dismiss request if needed
+        },
+        title = {
+            Text(text = "Pilih Sumber Foto")
+        },
+        text = {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Tombol Kamera
+                    Button(
+                        onClick = {
+                            selectedOption = "Camera"
+                            onSelect(selectedOption)
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "Kamera")
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    // Tombol Galeri
+                    Button(
+                        onClick = {
+                            selectedOption = "Gallery"
+                            onSelect(selectedOption)
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "Galeri")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            // Tombol Konfirmasi (jika diperlukan)
+        },
+        dismissButton = {
+            // Tombol Batal (jika diperlukan)
+        }
+    )
+}
 
 
 @Preview(showSystemUi = true)
