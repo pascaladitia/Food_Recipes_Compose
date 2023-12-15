@@ -8,11 +8,10 @@ import com.pascal.foodrecipescompose.data.local.database.DatabaseConstants
 data class ProfileEntity (
     @PrimaryKey
     val id: Int? = null,
-    val name: String? = null,
-    val imagePath: String? = null,
-    val desc: String? = null,
-    val work: String? = null,
-    val address: String? = null,
-    val lat: String? = null,
-    val lon: String? = null
+    val name: String? = "",
+    val imagePath: String? = "",
+    val imageProfilePath: String? = "",
+    val email: String? = "",
+    val phone: String? = "",
+    val address: String? = ""
     )

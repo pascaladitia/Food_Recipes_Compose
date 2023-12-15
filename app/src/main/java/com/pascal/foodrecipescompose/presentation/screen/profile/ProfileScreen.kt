@@ -3,6 +3,7 @@ package com.pascal.foodrecipescompose.presentation.screen.profile
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,7 +11,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,9 +26,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.PhotoLibrary
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,25 +39,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.pascal.foodrecipescompose.BuildConfig
 import com.pascal.foodrecipescompose.R
 import com.pascal.foodrecipescompose.data.local.model.ProfileEntity
 import com.pascal.foodrecipescompose.presentation.component.CameraGalleryDialog
@@ -69,8 +63,7 @@ import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 import com.pascal.foodrecipescompose.utils.HIDE_DIALOG
 import com.pascal.foodrecipescompose.utils.UiState
-import com.pascal.foodrecipescompose.utils.createImageFile
-import java.util.Objects
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
@@ -78,6 +71,7 @@ fun ProfileScreen(
     paddingValues: PaddingValues,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(key1 = true) {
         viewModel.loadProfile()
     }
@@ -99,13 +93,27 @@ fun ProfileScreen(
             is UiState.Empty -> {
 //                ErrorScreen(message = stringResource(R.string.empty)) {}
                 ProfileContent(
-                    itemProfile = ProfileEntity()
+                    itemProfile = ProfileEntity(),
+                    onSave = {
+                        viewModel.addProfile(it)
+
+                        coroutineScope.launch {
+                            viewModel.loadProfile()
+                        }
+                    }
                 )
             }
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data
                 ProfileContent(
-                    itemProfile = data
+                    itemProfile = data,
+                    onSave = {
+                        viewModel.addProfile(it)
+
+                        coroutineScope.launch {
+                            viewModel.loadProfile()
+                        }
+                    }
                 )
             }
         }
@@ -115,14 +123,15 @@ fun ProfileScreen(
 @Composable
 fun ProfileContent(
     modifier: Modifier = Modifier,
-    itemProfile: ProfileEntity
+    itemProfile: ProfileEntity,
+    onSave: (ProfileEntity) -> Unit
 ) {
     val context = LocalContext.current
 
-    var name by remember { mutableStateOf("John Doe") }
-    var email by remember { mutableStateOf("john.doe@example.com") }
-    var phone by remember { mutableStateOf("123-456-7890") }
-    var address by remember { mutableStateOf("Indonesia") }
+    var name by remember { mutableStateOf(itemProfile.name) }
+    var email by remember { mutableStateOf(itemProfile.email) }
+    var phone by remember { mutableStateOf(itemProfile.phone) }
+    var address by remember { mutableStateOf(itemProfile.address) }
 
     var showDialogCapture by remember { mutableIntStateOf(HIDE_DIALOG) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -181,7 +190,7 @@ fun ProfileContent(
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
                 }
-                .clip(RoundedCornerShape(24.dp))
+                .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                 .background(Color.White)
         )
 
@@ -222,7 +231,7 @@ fun ProfileContent(
                 }
         ) {
             OutlinedTextField(
-                value = name,
+                value = name.toString(),
                 onValueChange = { name = it },
                 label = { Text("Name") },
                 modifier = Modifier.fillMaxWidth(),
@@ -231,7 +240,7 @@ fun ProfileContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedTextField(
-                value = email,
+                value = email.toString(),
                 onValueChange = { email = it },
                 label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth(),
@@ -240,7 +249,7 @@ fun ProfileContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedTextField(
-                value = phone,
+                value = phone.toString(),
                 onValueChange = { phone = it },
                 label = { Text("Phone") },
                 modifier = Modifier.fillMaxWidth(),
@@ -266,7 +275,16 @@ fun ProfileContent(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-
+                    val profile = ProfileEntity(
+                        id = 1,
+                        name = name,
+                        imagePath = imageUri.toString(),
+                        imageProfilePath = imageProfileUri.toString(),
+                        email = email,
+                        phone = phone,
+                        address = address
+                    )
+                    onSave(profile)
                 }
             ) {
                 Text(text = "Save")
@@ -290,7 +308,8 @@ fun ProfilePreview() {
     FoodRecipesComposeTheme {
         val profile = ProfileEntity(id = 1, name = "name1")
         ProfileContent(
-            itemProfile = profile
+            itemProfile = profile,
+            onSave = {}
         )
     }
 }
