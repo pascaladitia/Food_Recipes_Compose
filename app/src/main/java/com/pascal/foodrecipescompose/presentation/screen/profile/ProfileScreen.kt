@@ -39,16 +39,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -117,15 +118,15 @@ fun ProfileContent(
     var email by remember { mutableStateOf("john.doe@example.com") }
     var phone by remember { mutableStateOf("123-456-7890") }
     var address by remember { mutableStateOf("Indonesia") }
-    var showDialogCapture by remember { mutableStateOf(false) }
-    var galleryImageUri by remember { mutableStateOf<Uri?>(Uri.EMPTY) }
-    var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
+    var showDialogCapture by remember { mutableIntStateOf(0) }
+    var imageUri by remember { mutableStateOf<Uri?>(Uri.EMPTY) }
+    var imageProfileUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) {
         if (it) {
-            showDialogCapture = true
+            Toast.makeText(context, "Permission Success", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
         }
@@ -138,7 +139,7 @@ fun ProfileContent(
 
         Image(
             painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current).data(data = capturedImageUri)
+                ImageRequest.Builder(LocalContext.current).data(data = imageUri)
                     .apply {
                         crossfade(true)
                     }
@@ -155,9 +156,10 @@ fun ProfileContent(
                     end.linkTo(parent.end)
                 }
                 .clickable {
-                    val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                    val permissionCheckResult =
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                     if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                        showDialogCapture = true
+                        showDialogCapture = 1
                     } else {
                         permissionLauncher.launch(Manifest.permission.CAMERA)
                     }
@@ -180,7 +182,7 @@ fun ProfileContent(
 
         Image(
             painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current).data(data = galleryImageUri)
+                ImageRequest.Builder(LocalContext.current).data(data = imageProfileUri)
                     .apply {
                         crossfade(true)
                     }
@@ -198,9 +200,10 @@ fun ProfileContent(
                     centerAround(cardView.top)
                 }
                 .clickable {
-                    val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                    val permissionCheckResult =
+                        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                     if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                        showDialogCapture = true
+                        showDialogCapture = 2
                     } else {
                         permissionLauncher.launch(Manifest.permission.CAMERA)
                     }
@@ -256,43 +259,46 @@ fun ProfileContent(
             }
         }
 
-        if (showDialogCapture) {
+        if (showDialogCapture != 0) {
             CameraGalleryDialog (
                 onSelect = { uri ->
-                    capturedImageUri = uri!!
-                    showDialogCapture = false
+                    if (showDialogCapture == 1) {
+                        imageUri = uri
+                    } else if (showDialogCapture == 2){
+                        imageProfileUri = uri
+                    }
+                    showDialogCapture = 0
                 }
             )
         }
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CameraGalleryDialog(
-    onSelect: (Uri?) -> Unit
+    onSelect: (Uri) -> Unit
 ) {
     val context = LocalContext.current
-    var selectedOption by remember { mutableStateOf("") }
     val file = context.createImageFile()
-    val uri = FileProvider.getUriForFile(
-        Objects.requireNonNull(context),
-        BuildConfig.APPLICATION_ID + ".provider",
-        file
-    )
+    val uri = FileProvider.getUriForFile(Objects.requireNonNull(context),
+        BuildConfig.APPLICATION_ID + ".provider", file)
 
     val galleryLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-        onSelect(uri)
+        uri?.let { onSelect(it) }
     }
-    val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
             onSelect(uri)
-        }
+    }
 
     AlertDialog(
-        onDismissRequest = {},
         title = {
-            Text(text = "Select Photo Source")
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleMedium,
+                text = "Select Photo Source"
+            )
         },
         text = {
             Column {
@@ -304,32 +310,35 @@ fun CameraGalleryDialog(
                 ) {
                     Button(
                         onClick = {
-                            selectedOption = "Camera"
                             cameraLauncher.launch(uri)
                         },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Kamera")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Kamera")
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Camera")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = "Camera")
+                        }
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Button(
                         onClick = {
-                            selectedOption = "Gallery"
                             galleryLauncher.launch("image/*")
                         },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = "Gallery")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Galeri")
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = "Gallery")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(text = "Gallery")
+                        }
                     }
                 }
             }
         },
+        onDismissRequest = {},
         confirmButton = {},
         dismissButton = {}
     )
