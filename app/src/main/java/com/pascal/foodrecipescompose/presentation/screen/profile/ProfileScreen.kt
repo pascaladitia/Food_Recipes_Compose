@@ -47,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -61,9 +62,11 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.pascal.foodrecipescompose.BuildConfig
 import com.pascal.foodrecipescompose.data.local.model.ProfileEntity
+import com.pascal.foodrecipescompose.presentation.component.CameraGalleryDialog
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
 import com.pascal.foodrecipescompose.presentation.component.LoadingScreen
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
+import com.pascal.foodrecipescompose.utils.HIDE_DIALOG
 import com.pascal.foodrecipescompose.utils.UiState
 import com.pascal.foodrecipescompose.utils.createImageFile
 import java.util.Objects
@@ -114,11 +117,13 @@ fun ProfileContent(
     itemProfile: ProfileEntity
 ) {
     val context = LocalContext.current
+
     var name by remember { mutableStateOf("John Doe") }
     var email by remember { mutableStateOf("john.doe@example.com") }
     var phone by remember { mutableStateOf("123-456-7890") }
     var address by remember { mutableStateOf("Indonesia") }
-    var showDialogCapture by remember { mutableIntStateOf(0) }
+
+    var showDialogCapture by remember { mutableIntStateOf(HIDE_DIALOG) }
     var imageUri by remember { mutableStateOf<Uri?>(Uri.EMPTY) }
     var imageProfileUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
 
@@ -140,9 +145,7 @@ fun ProfileContent(
         Image(
             painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current).data(data = imageUri)
-                    .apply {
-                        crossfade(true)
-                    }
+                    .apply { crossfade(true) }
                     .build()
             ),
             contentDescription = null,
@@ -183,9 +186,7 @@ fun ProfileContent(
         Image(
             painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current).data(data = imageProfileUri)
-                    .apply {
-                        crossfade(true)
-                    }
+                    .apply { crossfade(true) }
                     .build()
             ),
             contentDescription = null,
@@ -259,91 +260,16 @@ fun ProfileContent(
             }
         }
 
-        if (showDialogCapture != 0) {
-            CameraGalleryDialog (
-                onSelect = { uri ->
-                    if (showDialogCapture == 1) {
-                        imageUri = uri
-                    } else if (showDialogCapture == 2){
-                        imageProfileUri = uri
-                    }
-                    showDialogCapture = 0
-                }
-            )
+        CameraGalleryDialog(showDialogCapture) { uri ->
+            if (showDialogCapture == 1) {
+                imageUri = uri
+            } else if (showDialogCapture == 2) {
+                imageProfileUri = uri
+            }
+            showDialogCapture = HIDE_DIALOG
         }
     }
 }
-
-@Composable
-fun CameraGalleryDialog(
-    onSelect: (Uri) -> Unit
-) {
-    val context = LocalContext.current
-    val file = context.createImageFile()
-    val uri = FileProvider.getUriForFile(Objects.requireNonNull(context),
-        BuildConfig.APPLICATION_ID + ".provider", file)
-
-    val galleryLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let { onSelect(it) }
-    }
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            onSelect(uri)
-    }
-
-    AlertDialog(
-        title = {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium,
-                text = "Select Photo Source"
-            )
-        },
-        text = {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Button(
-                        onClick = {
-                            cameraLauncher.launch(uri)
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Camera")
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(text = "Camera")
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Button(
-                        onClick = {
-                            galleryLauncher.launch("image/*")
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = "Gallery")
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(text = "Gallery")
-                        }
-                    }
-                }
-            }
-        },
-        onDismissRequest = {},
-        confirmButton = {},
-        dismissButton = {}
-    )
-}
-
 
 @Preview(showSystemUi = true)
 @Composable
