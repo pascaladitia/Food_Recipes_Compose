@@ -24,10 +24,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.pascal.foodrecipescompose.BuildConfig
+import com.pascal.foodrecipescompose.R
 import com.pascal.foodrecipescompose.utils.HIDE_DIALOG
 import com.pascal.foodrecipescompose.utils.createImageFile
 import java.util.Objects
@@ -40,10 +42,8 @@ fun CameraGalleryDialog(
     if (showDialogCapture != HIDE_DIALOG) {
         val context = LocalContext.current
         val file = context.createImageFile()
-        val uri = FileProvider.getUriForFile(
-            Objects.requireNonNull(context),
-            BuildConfig.APPLICATION_ID + ".provider",
-            file
+        val uri = FileProvider.getUriForFile(Objects.requireNonNull(context),
+            BuildConfig.APPLICATION_ID + ".provider", file
         )
 
         val galleryLauncher =
@@ -61,7 +61,7 @@ fun CameraGalleryDialog(
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.titleMedium,
-                    text = "Select Photo Source"
+                    text = stringResource(R.string.select_photo_source)
                 )
             },
             text = {
@@ -78,7 +78,10 @@ fun CameraGalleryDialog(
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            CameraGalleryButton(icon = Icons.Default.PhotoCamera, text = "Camera")
+                            CameraGalleryButton(
+                                icon = Icons.Default.PhotoCamera,
+                                text = stringResource(R.string.camera)
+                            )
                         }
 
                         Spacer(modifier = Modifier.width(8.dp))
@@ -89,7 +92,10 @@ fun CameraGalleryDialog(
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            CameraGalleryButton(icon = Icons.Default.PhotoLibrary, text = "Gallery")
+                            CameraGalleryButton(
+                                icon = Icons.Default.PhotoLibrary,
+                                text = stringResource(R.string.gallery)
+                            )
                         }
                     }
                 }

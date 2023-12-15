@@ -11,4 +11,7 @@
     <string name="step_cooking">Step Cooking</string>
     <string name="empty">Recipe empty, please try again!</string>
     <string name="favorite_empty">Favorites are empty</string>
+    <string name="select_photo_source">Select Photo Source</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
 </resources>
