@@ -61,6 +61,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.pascal.foodrecipescompose.BuildConfig
+import com.pascal.foodrecipescompose.R
 import com.pascal.foodrecipescompose.data.local.model.ProfileEntity
 import com.pascal.foodrecipescompose.presentation.component.CameraGalleryDialog
 import com.pascal.foodrecipescompose.presentation.component.ErrorScreen
@@ -124,8 +125,8 @@ fun ProfileContent(
     var address by remember { mutableStateOf("Indonesia") }
 
     var showDialogCapture by remember { mutableIntStateOf(HIDE_DIALOG) }
-    var imageUri by remember { mutableStateOf<Uri?>(Uri.EMPTY) }
-    var imageProfileUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var imageProfileUri by remember { mutableStateOf<Uri?>(null) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -144,7 +145,8 @@ fun ProfileContent(
 
         Image(
             painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current).data(data = imageUri)
+                ImageRequest.Builder(LocalContext.current)
+                    .data(data = imageUri ?: R.drawable.no_thumbnail)
                     .apply { crossfade(true) }
                     .build()
             ),
@@ -185,7 +187,8 @@ fun ProfileContent(
 
         Image(
             painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current).data(data = imageProfileUri)
+                ImageRequest.Builder(LocalContext.current)
+                    .data(data = imageProfileUri ?: R.drawable.no_profile)
                     .apply { crossfade(true) }
                     .build()
             ),
@@ -195,7 +198,7 @@ fun ProfileContent(
                 .border(6.dp, Color.White, CircleShape)
                 .clip(CircleShape)
                 .size(150.dp)
-                .background(Color.White, CircleShape)
+                .background(MaterialTheme.colorScheme.background, CircleShape)
                 .constrainAs(imageProfile) {
                     centerHorizontallyTo(parent)
                     centerAround(cardView.top)
@@ -257,6 +260,16 @@ fun ProfileContent(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = "Address: $address")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+
+                }
+            ) {
+                Text(text = "Save")
             }
         }
 

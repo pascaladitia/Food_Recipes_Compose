@@ -46,8 +46,7 @@ fun CameraGalleryDialog(
             BuildConfig.APPLICATION_ID + ".provider", file
         )
 
-        val galleryLauncher =
-            rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+        val galleryLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
                 uri?.let { onSelect(it) }
             }
         val cameraLauncher =
