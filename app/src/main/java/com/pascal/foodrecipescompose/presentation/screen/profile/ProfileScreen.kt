@@ -6,7 +6,12 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -86,58 +91,61 @@ fun ProfileScreen(
         modifier = modifier.padding(paddingValues),
         color = MaterialTheme.colorScheme.background
     ) {
-        Crossfade(targetState = uiState, label = "") { state ->
-            when (state) {
-                is UiState.Loading -> {
-                    LoadingScreen()
-                }
-                is UiState.Error -> {
-                    val message = (state as UiState.Error).message
-                    ErrorScreen(message = message) {}
-                }
-                is UiState.Empty -> {
-                    ProfileEditContent(
-                        itemProfile = ProfileEntity(),
-                        onSave = {
-                            viewModel.addProfile(it)
-                            editMode = false
-
-                            coroutineScope.launch {
-                                delay(200)
-                                viewModel.loadProfile()
-                            }
-                        }
-                    )
-                }
-                is UiState.Success -> {
-                    val data = (state as UiState.Success).data
-                    if (editMode) {
+        AnimatedVisibility(
+            visible = uiState !is UiState.Loading,
+            enter = fadeIn() + slideInVertically(),
+            exit = fadeOut() + slideOutVertically()
+        ) {
+            Crossfade(targetState = uiState, label = "") { state ->
+                when (state) {
+                    is UiState.Loading -> {
+                        LoadingScreen()
+                    }
+                    is UiState.Error -> {
+                        val message = state.message
+                        ErrorScreen(message = message) {}
+                    }
+                    is UiState.Empty -> {
                         ProfileEditContent(
-                            itemProfile = data,
+                            itemProfile = ProfileEntity(),
                             onSave = {
                                 viewModel.addProfile(it)
                                 editMode = false
 
                                 coroutineScope.launch {
-                                    delay(200)
                                     viewModel.loadProfile()
                                 }
                             }
                         )
-                    } else {
-                        ProfileContent(
-                            itemProfile = data,
-                            onEdit = {
-                                editMode = true
-                            }
-                        )
+                    }
+                    is UiState.Success -> {
+                        val data = state.data
+                        if (editMode) {
+                            ProfileEditContent(
+                                itemProfile = data,
+                                onSave = {
+                                    viewModel.addProfile(it)
+                                    editMode = false
+
+                                    coroutineScope.launch {
+                                        viewModel.loadProfile()
+                                    }
+                                }
+                            )
+                        } else {
+                            ProfileContent(
+                                itemProfile = data,
+                                onEdit = {
+                                    editMode = true
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun ProfileContent(
@@ -449,14 +457,20 @@ fun ProfileEditContent(
             }
         }
 
-        CameraGalleryDialog(showDialogCapture) { uri ->
-            if (showDialogCapture == 1) {
-                imageUri = uri
-            } else if (showDialogCapture == 2) {
-                imageProfileUri = uri
+        CameraGalleryDialog(
+            showDialogCapture = showDialogCapture,
+            onSelect = { uri ->
+                if (showDialogCapture == 1) {
+                    imageUri = uri
+                } else if (showDialogCapture == 2) {
+                    imageProfileUri = uri
+                }
+                showDialogCapture = HIDE_DIALOG
+            },
+            onDismiss = {
+                showDialogCapture = HIDE_DIALOG
             }
-            showDialogCapture = HIDE_DIALOG
-        }
+        )
     }
 }
 

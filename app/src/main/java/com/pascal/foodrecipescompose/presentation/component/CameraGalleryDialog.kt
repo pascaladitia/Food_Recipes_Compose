@@ -3,6 +3,7 @@ package com.pascal.foodrecipescompose.presentation.component
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.AlertDialog
@@ -22,8 +25,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,7 +42,8 @@ import java.util.Objects
 @Composable
 fun CameraGalleryDialog(
     showDialogCapture: Int,
-    onSelect: (Uri) -> Unit
+    onSelect: (Uri) -> Unit,
+    onDismiss: () -> Unit
 ) {
     if (showDialogCapture != HIDE_DIALOG) {
         val context = LocalContext.current
@@ -56,12 +62,26 @@ fun CameraGalleryDialog(
 
         AlertDialog(
             title = {
-                Text(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleMedium,
-                    text = stringResource(R.string.select_photo_source)
-                )
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        style = MaterialTheme.typography.titleMedium,
+                        text = stringResource(R.string.select_photo_source)
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.Cancel,
+                        contentDescription = "",
+                        tint = colorResource(android.R.color.darker_gray),
+                        modifier = Modifier
+                            .width(30.dp)
+                            .height(30.dp)
+                            .clip(CircleShape)
+                            .clickable { onDismiss() }
+                    )
+                }
             },
             text = {
                 Column {
