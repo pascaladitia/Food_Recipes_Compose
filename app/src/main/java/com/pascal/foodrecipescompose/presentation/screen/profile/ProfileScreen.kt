@@ -112,40 +112,20 @@ fun ProfileContent(
     modifier: Modifier = Modifier,
     itemProfile: ProfileEntity
 ) {
+    val context = LocalContext.current
     var name by remember { mutableStateOf("John Doe") }
     var email by remember { mutableStateOf("john.doe@example.com") }
     var phone by remember { mutableStateOf("123-456-7890") }
     var address by remember { mutableStateOf("Indonesia") }
-    var galleryImageUri by remember { mutableStateOf<Uri?>(null) }
     var showDialogCapture by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
-    val galleryLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-        galleryImageUri = uri
-    }
-
-    val file = context.createImageFile()
-    val uri = FileProvider.getUriForFile(
-        Objects.requireNonNull(context),
-        BuildConfig.APPLICATION_ID + ".provider",
-        file
-    )
-
-    var capturedImageUri by remember {
-        mutableStateOf<Uri>(Uri.EMPTY)
-    }
-
-    val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            capturedImageUri = uri
-        }
+    var galleryImageUri by remember { mutableStateOf<Uri?>(Uri.EMPTY) }
+    var capturedImageUri by remember { mutableStateOf<Uri>(Uri.EMPTY) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) {
         if (it) {
-            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
-            cameraLauncher.launch(uri)
+            showDialogCapture = true
         } else {
             Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
         }
@@ -175,10 +155,9 @@ fun ProfileContent(
                     end.linkTo(parent.end)
                 }
                 .clickable {
-                    val permissionCheckResult =
-                        ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                    val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                     if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
-                        cameraLauncher.launch(uri)
+                        showDialogCapture = true
                     } else {
                         permissionLauncher.launch(Manifest.permission.CAMERA)
                     }
@@ -219,8 +198,12 @@ fun ProfileContent(
                     centerAround(cardView.top)
                 }
                 .clickable {
-//                    galleryLauncher.launch("image/*")
-                    showDialogCapture = true
+                    val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                        showDialogCapture = true
+                    } else {
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
                 }
         )
 
@@ -274,27 +257,42 @@ fun ProfileContent(
         }
 
         if (showDialogCapture) {
-            CameraGalleryDialog { selectedOption ->
-                // Lakukan sesuatu berdasarkan opsi yang dipilih
-                showDialogCapture = false
-                // Misalnya, tampilkan pesan opsi yang dipilih
-                Toast.makeText(context, "Anda memilih: $selectedOption", Toast.LENGTH_SHORT).show()
-            }
+            CameraGalleryDialog (
+                onSelect = { uri ->
+                    capturedImageUri = uri!!
+                    showDialogCapture = false
+                }
+            )
         }
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun CameraGalleryDialog(onSelect: (String) -> Unit) {
+fun CameraGalleryDialog(
+    onSelect: (Uri?) -> Unit
+) {
+    val context = LocalContext.current
     var selectedOption by remember { mutableStateOf("") }
+    val file = context.createImageFile()
+    val uri = FileProvider.getUriForFile(
+        Objects.requireNonNull(context),
+        BuildConfig.APPLICATION_ID + ".provider",
+        file
+    )
+
+    val galleryLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+        onSelect(uri)
+    }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            onSelect(uri)
+        }
 
     AlertDialog(
-        onDismissRequest = {
-            // Handle dismiss request if needed
-        },
+        onDismissRequest = {},
         title = {
-            Text(text = "Pilih Sumber Foto")
+            Text(text = "Select Photo Source")
         },
         text = {
             Column {
@@ -304,42 +302,36 @@ fun CameraGalleryDialog(onSelect: (String) -> Unit) {
                         .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Tombol Kamera
                     Button(
                         onClick = {
                             selectedOption = "Camera"
-                            onSelect(selectedOption)
+                            cameraLauncher.launch(uri)
                         },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = null)
+                        Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = "Kamera")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = "Kamera")
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    // Tombol Galeri
                     Button(
                         onClick = {
                             selectedOption = "Gallery"
-                            onSelect(selectedOption)
+                            galleryLauncher.launch("image/*")
                         },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = null)
+                        Icon(imageVector = Icons.Default.PhotoLibrary, contentDescription = "Gallery")
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = "Galeri")
                     }
                 }
             }
         },
-        confirmButton = {
-            // Tombol Konfirmasi (jika diperlukan)
-        },
-        dismissButton = {
-            // Tombol Batal (jika diperlukan)
-        }
+        confirmButton = {},
+        dismissButton = {}
     )
 }
 
