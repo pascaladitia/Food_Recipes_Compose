@@ -1,5 +1,13 @@
 package com.pascal.foodrecipescompose.presentation.screen.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,8 +40,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,6 +71,7 @@ import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeThe
 import com.pascal.foodrecipescompose.utils.UiState
 import com.pascal.foodrecipescompose.utils.generateRandomChar
 import com.pascal.foodrecipescompose.utils.intentActionView
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -71,11 +83,14 @@ fun HomeScreen(
     onDetailClick: (String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
+    var isContentVisible by remember { mutableStateOf(false) }
     val category by produceState<CategoryResponse?>(initialValue = null) {
         value = viewModel.loadCategory()
     }
     LaunchedEffect(key1 = true) {
         viewModel.loadListRecipes(generateRandomChar().toString())
+        delay(500)
+        isContentVisible = true
     }
 
     val uiState by viewModel.recipes.collectAsState(initial = UiState.Loading)
@@ -99,6 +114,7 @@ fun HomeScreen(
             is UiState.Empty -> {
                 HomeContent(
                     isEmpty = true,
+                    isContentVisible = isContentVisible,
                     listCategory = category?.categories,
                     listRecipe = emptyList(),
                     onCategoryClick = { query ->
@@ -120,13 +136,18 @@ fun HomeScreen(
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data
                 HomeContent(
+                    isContentVisible = isContentVisible,
                     listCategory = category?.categories,
                     listRecipe = data?.meals,
                     onCategoryClick = { query ->
                         onCategoryClick(query)
                     },
                     onDetailClick = { query ->
-                        onDetailClick(query)
+                        coroutineScope.launch {
+                            isContentVisible = false
+                            delay(500)
+                            onDetailClick(query)
+                        }
                     },
                     onSearch = { query ->
                         coroutineScope.launch {
@@ -148,6 +169,7 @@ fun HomeScreen(
 fun HomeContent(
     modifier: Modifier = Modifier,
     isEmpty: Boolean = false,
+    isContentVisible: Boolean = false,
     listCategory: List<CategoriesItem?>?,
     listRecipe: List<MealsItem?>?,
     onCategoryClick: (String) -> Unit,
@@ -165,50 +187,93 @@ fun HomeContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = stringResource(R.string.cookie), style = MaterialTheme.typography.headlineLarge)
-            IconCircleBorder(imageVector = Icons.Outlined.Notifications) {
+            AnimatedVisibility(
+                visible = isContentVisible,
+                enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally(),
+                exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
+            ) {
+                Text(text = stringResource(R.string.cookie), style = MaterialTheme.typography.headlineLarge)
+            }
 
+            AnimatedVisibility(
+                visible = isContentVisible,
+                enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally { fullHeight -> fullHeight },
+                exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally { fullHeight -> fullHeight }
+            ) {
+                IconCircleBorder(imageVector = Icons.Outlined.Notifications) {}
             }
         }
-        Search { query ->
-            onSearch(query)
-        }
-        SectionText(text = stringResource(R.string.category))
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(horizontal = 24.dp),
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally(),
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
         ) {
-            items(listCategory ?: emptyList()) { category ->
-                category?.let {
-                    CategoryItem(
-                        item = it,
-                        onCategoryClick = { query ->
-                            onCategoryClick(query)
-                        }
-                    )
+            Search { query ->
+                onSearch(query)
+            }
+        }
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally { fullHeight -> fullHeight },
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally { fullHeight -> fullHeight }
+        ) {
+            SectionText(text = stringResource(R.string.category))
+        }
+
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally(),
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
+        ) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp),
+            ) {
+                items(listCategory ?: emptyList()) { category ->
+                    category?.let {
+                        CategoryItem(
+                            item = it,
+                            onCategoryClick = { query ->
+                                onCategoryClick(query)
+                            }
+                        )
+                    }
                 }
             }
         }
-        SectionText(text = stringResource(R.string.just_for_you))
-        when(isEmpty) {
-            true -> {
-                ErrorScreen(message = stringResource(R.string.empty)) {
-                    onRetry()
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally { fullHeight -> fullHeight },
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally { fullHeight -> fullHeight }
+        ) {
+            SectionText(text = stringResource(R.string.just_for_you))
+        }
+
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally(),
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
+        ) {
+            when(isEmpty) {
+                true -> {
+                    ErrorScreen(message = stringResource(R.string.empty)) {
+                        onRetry()
+                    }
                 }
-            }
-            false -> {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(horizontal = 24.dp),
-                ) {
-                    items(listRecipe ?: emptyList()) { category ->
-                        category?.let { item ->
-                            RecipesItem(
-                                item = item,
-                                onDetailClick = { onDetailClick(it) }
-                            )
+                false -> {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(horizontal = 24.dp),
+                    ) {
+                        items(listRecipe ?: emptyList()) { category ->
+                            category?.let { item ->
+                                RecipesItem(
+                                    item = item,
+                                    onDetailClick = { onDetailClick(it) }
+                                )
+                            }
                         }
                     }
                 }

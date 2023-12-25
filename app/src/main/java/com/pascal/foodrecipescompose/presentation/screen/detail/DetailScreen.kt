@@ -1,5 +1,13 @@
 package com.pascal.foodrecipescompose.presentation.screen.detail
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +38,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,6 +65,8 @@ import com.pascal.foodrecipescompose.presentation.screen.detail.tabs.ContentDeta
 import com.pascal.foodrecipescompose.presentation.ui.theme.FoodRecipesComposeTheme
 import com.pascal.foodrecipescompose.utils.UiState
 import com.pascal.foodrecipescompose.utils.intentActionView
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun DetailScreen(
@@ -64,11 +76,15 @@ fun DetailScreen(
     query: String,
     onNavBack: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    var isContentVisible by remember { mutableStateOf(false) }
+    val uiState by viewModel.detailRecipes.collectAsState()
+
     LaunchedEffect(key1 = true) {
         viewModel.loadDetailRecipes(query)
+        delay(200)
+        isContentVisible = true
     }
-
-    val uiState by viewModel.detailRecipes.collectAsState()
 
     Surface(
         modifier = modifier.padding(paddingValues),
@@ -91,10 +107,15 @@ fun DetailScreen(
             is UiState.Success -> {
                 val data = (uiState as UiState.Success).data
                 DetailContent(
+                    isContentVisible = isContentVisible,
                     item = data,
                     viewModel = viewModel,
                     onNavBack = {
-                        onNavBack()
+                        coroutineScope.launch {
+                            isContentVisible = false
+                            delay(500)
+                            onNavBack()
+                        }
                     }
                 )
             }
@@ -105,6 +126,7 @@ fun DetailScreen(
 @Composable
 fun DetailContent(
     modifier: Modifier = Modifier,
+    isContentVisible: Boolean = false,
     item: DetailRecipesMapping?,
     viewModel: DetailViewModel?,
     onNavBack: () -> Unit
@@ -123,38 +145,74 @@ fun DetailContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconCircleBorder(
-                size = 42.dp,
-                padding = 6.dp,
-                imageVector = Icons.Outlined.ArrowBack
+            AnimatedVisibility(
+                visible = isContentVisible,
+                enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally(),
+                exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
             ) {
-                onNavBack()
+                IconCircleBorder(
+                    size = 42.dp,
+                    padding = 6.dp,
+                    imageVector = Icons.Outlined.ArrowBack
+                ) {
+                    onNavBack()
+                }
             }
-            IconCircleBorder(
-                size = 42.dp,
-                padding = 6.dp,
-                imageVector = if (favBtnClicked) Icons.Outlined.Favorite
-                                else Icons.Outlined.FavoriteBorder
+            AnimatedVisibility(
+                visible = isContentVisible,
+                enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally { fullHeight -> fullHeight },
+                exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally { fullHeight -> fullHeight }
             ) {
-                favBtnClicked = !favBtnClicked
+                IconCircleBorder(
+                    size = 42.dp,
+                    padding = 6.dp,
+                    imageVector = if (favBtnClicked) Icons.Outlined.Favorite
+                    else Icons.Outlined.FavoriteBorder
+                ) {
+                    favBtnClicked = !favBtnClicked
 
-                viewModel?.updateFavorite(
-                    FavoritesEntity(
-                        item?.idMeal?.toIntOrNull() ?: 0,
-                        item?.strMeal,
-                        item?.strMealThumb,
-                        item?.strCategory,
-                        item?.strTags,
-                        item?.strYoutube
-                    ),
-                    favBtnClicked
-                )
+                    viewModel?.updateFavorite(
+                        FavoritesEntity(
+                            item?.idMeal?.toIntOrNull() ?: 0,
+                            item?.strMeal,
+                            item?.strMealThumb,
+                            item?.strCategory,
+                            item?.strTags,
+                            item?.strYoutube
+                        ),
+                        favBtnClicked
+                    )
+                }
             }
         }
-        ImageRecipes(item = item)
-        TitleDetail(item = item)
-        ContentDetail(item = item)
-        ContentDetailWithTabs(item = item)
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInVertically(),
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutVertically()
+        ) {
+            ImageRecipes(item = item)
+        }
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally(),
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally()
+        ) {
+            TitleDetail(item = item)
+        }
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInHorizontally { fullHeight -> fullHeight },
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutHorizontally { fullHeight -> fullHeight }
+        ) {
+            ContentDetail(item = item)
+        }
+        AnimatedVisibility(
+            visible = isContentVisible,
+            enter = fadeIn(tween(durationMillis = 500)) + slideInVertically{ fullHeight -> fullHeight },
+            exit = fadeOut(tween(durationMillis = 500)) + slideOutVertically { fullHeight -> fullHeight }
+        ) {
+            ContentDetailWithTabs(item = item)
+        }
     }
 }
 
