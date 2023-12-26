@@ -80,6 +80,9 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("com.google.accompanist:accompanist-flowlayout:0.20.0")
+    implementation("com.google.maps.android:maps-compose:2.7.2")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.20.0")
 
     // Paging
     implementation("androidx.paging:paging-common-ktx:3.2.1")
@@ -87,7 +90,7 @@ dependencies {
     implementation("androidx.paging:paging-compose:3.3.0-alpha02")
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.6.0")
+    implementation("androidx.navigation:navigation-compose:2.7.6")
 
     // Retrofit
     api("com.squareup.retrofit2:retrofit:2.9.0")
@@ -96,9 +99,9 @@ dependencies {
     api("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Room
-    implementation("androidx.room:room-runtime:2.6.0")
-    implementation("androidx.room:room-ktx:2.6.0")
-    kapt("androidx.room:room-compiler:2.6.0")
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48")

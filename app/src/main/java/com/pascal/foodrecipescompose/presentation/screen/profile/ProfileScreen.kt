@@ -76,7 +76,8 @@ import kotlinx.coroutines.launch
 fun ProfileScreen(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
+    onMaps: () -> Unit
 ) {
     LaunchedEffect(key1 = true) {
         viewModel.loadProfile()
@@ -115,6 +116,9 @@ fun ProfileScreen(
                                 coroutineScope.launch {
                                     viewModel.loadProfile()
                                 }
+                            },
+                            onMaps = {
+                                onMaps()
                             }
                         )
                     }
@@ -130,6 +134,9 @@ fun ProfileScreen(
                                     coroutineScope.launch {
                                         viewModel.loadProfile()
                                     }
+                                },
+                                onMaps = {
+                                    onMaps()
                                 }
                             )
                         } else {
@@ -151,7 +158,7 @@ fun ProfileScreen(
 fun ProfileContent(
     modifier: Modifier = Modifier,
     itemProfile: ProfileEntity,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
 ) {
     var name by remember { mutableStateOf(itemProfile.name) }
     var email by remember { mutableStateOf(itemProfile.email) }
@@ -288,7 +295,8 @@ fun ProfileContent(
 fun ProfileEditContent(
     modifier: Modifier = Modifier,
     itemProfile: ProfileEntity,
-    onSave: (ProfileEntity) -> Unit
+    onSave: (ProfileEntity) -> Unit,
+    onMaps: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -424,7 +432,9 @@ fun ProfileEditContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onMaps() },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(

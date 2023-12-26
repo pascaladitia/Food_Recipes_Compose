@@ -15,6 +15,7 @@ import com.pascal.foodrecipescompose.presentation.screen.category.CategoryScreen
 import com.pascal.foodrecipescompose.presentation.screen.detail.DetailScreen
 import com.pascal.foodrecipescompose.presentation.screen.favorite.FavoriteScreen
 import com.pascal.foodrecipescompose.presentation.screen.home.HomeScreen
+import com.pascal.foodrecipescompose.presentation.screen.profile.MapsScreen
 import com.pascal.foodrecipescompose.presentation.screen.profile.ProfileScreen
 import com.pascal.foodrecipescompose.presentation.screen.splash.SplashScreen
 import com.pascal.foodrecipescompose.utils.QUERY
@@ -76,6 +77,14 @@ fun RouteScreen(
             }
             composable(route = Screen.ProfileScreen.route) {
                 ProfileScreen(
+                    paddingValues = paddingValues,
+                    onMaps = {
+                        navController.navigate(Screen.MapsScreen.route)
+                    }
+                )
+            }
+            composable(route = Screen.MapsScreen.route) {
+                MapsScreen(
                     paddingValues = paddingValues
                 )
             }

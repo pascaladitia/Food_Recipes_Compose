@@ -10,6 +10,7 @@ sealed class Screen(val route: String) {
     }
     object FavoriteScreen: Screen("favorite")
     object ProfileScreen: Screen("profile")
+    object MapsScreen: Screen("maps")
     object DetailScreen: Screen("detail/{$QUERY}") {
         fun createRoute(query: String) = "detail/$query"
     }
